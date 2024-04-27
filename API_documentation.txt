@@ -1,0 +1,79 @@
+######################################################
+############API Structure#############################
+##########Record Management
+#/create_table 
+#/crm/
+#/crm/record
+#/crm/record [POST]
+#/crm/record/<string:code> [PUT]
+#/crm/record/search
+#/crm/record_history/<string:code>
+############Dropdown list############################
+#/crm/bo
+#/crm/bo [POST]
+#/crm/bo [DELETE]
+#/crm/category
+#/crm/category [POST]
+#/crm/category [DELETE]
+#/crm/contact_note
+#/crm/contact_note [POST]
+#/crm/contact_note [DELETE]
+#/crm/call_note 
+#/crm/call_note [POST]
+#/crm/call_note [DELETE]
+#/crm/zalo_note
+#/crm/zalo_note [POST]
+#/crm/zalo_note [DELETE]
+#/crm/tele_note 
+#/crm/tele_note [POST]
+#/crm/tele_note [DELETE]
+#/crm/sms_note 
+#/crm/sms_note [POST]
+#/crm/sms_note [DELETE]
+#/crm/social_note 
+#/crm/social_note [POST]
+#/crm/social_note [DELETE]
+#/crm/interactive_content 
+#/crm/interactive_content [POST]
+#/crm/interactive_content [DELETE]
+#/crm/interactive_result 
+#/crm/interactive_result [POST]
+#/crm/interactive_result [DELETE]
+#/crm/person_in_charge
+#/crm/assistant
+################Device Management###############################################
+#/crm/device/phone
+#/crm/device/phone [POST]
+#/crm/device/phone/<string:code>  [PUT]
+#/crm/device/phone/<string:code>  [DELETE]
+#/crm/device/ip
+#/crm/device/ip [POST]
+#/crm/device/ip/<string:code> [PUT]
+#/crm/device/ip/<string:code> [DELETE]
+#/crm/device/sim
+#/crm/device/sim [POST]
+#/crm/device/sim/<string:code> [PUT]
+#/crm/device/sim/<string:code> [DELETE]
+##############Tool/Resource Management##############
+#/crm/tool/zalo
+#/crm/tool/zalo[POST]
+#/crm/tool/zalo/<string:code> [PUT]
+#/crm/tool/zalo/<string:code> [DELETE]
+#/crm/tool/tele
+#/crm/tool/tele[POST]
+#/crm/tool/tele/<string:code> [PUT]
+#/crm/tool/tele/<string:code> [DELETE]
+#/crm/tool/social
+#/crm/tool/social[POST]
+#/crm/tool/social/<string:code> [PUT]
+#/crm/tool/social/<string:code> [DELETE]
+##############Member Management####################
+#crm/user
+#crm/user [POST]
+#crm/user/<string:username> [PUT]
+#crm/user/<string:username> [DELETE]
+##########################################################
+#/login [GET,POST]
+#/logout
+###############IN-and-OUT############
+#/show_session 
