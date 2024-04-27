@@ -198,6 +198,7 @@ class Email_Mgt(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     email = db.Column(db.String(255), unique = True, nullable = False)
     email_status = db.Column(db.String(255), nullable = False)
+    email_password = db.Column(db.String(255), nullable = False)
     def __repr__(self):
         return self.email    
 #######Data model for all contact method including zalo, tele, faceboook , tiktok
@@ -295,6 +296,7 @@ def get_records():
     interaction_content = data.get('interaction_content')
     interaction_result = data.get('interaction_result')
     assistant = data.get('assistant')
+    creator = data.get('creator')
     start_date_str = data.get('start_date_str')
     end_date_str = data.get('end_date_str')
     try:
@@ -328,6 +330,7 @@ def get_records():
             'interaction_content':Customers.interaction_content.like(f'%{interaction_content}%'),
             'interaction_result':Customers.interaction_result.like(f'%{interaction_result}%'),
             'assistant':Customers.assistant.like(f'%{assistant}%'),
+            'creator':Customers.creator.like(f'%{creator}%'),
             'code':Customers.code.like(f'%{code}%'),
             'end_date_str':Customers.filled_date <= end_date,
             'start_date_str':Customers.filled_date >= start_date
@@ -338,7 +341,7 @@ def get_records():
 
     customers =  query.all()
     print(query.statement)
-    customer_data = [{'code':customer.code, 'username':customer.username,'category':customer.category,'bo_code':customer.bo_code,'contact_note':customer.contact_note,'call_note':customer.call_note,'zalo_note':customer.zalo_note,'tele_note':customer.tele_note,'sms_note':customer.sms_note,'social_note':customer.social_note,'interaction_content':customer.interaction_content,'interaction_result':customer.interaction_result,'person_in_charge':customer.person_in_charge,'filled_date': customer.filled_date.isoformat(),'assistant':customer.assistant} for customer in customers]
+    customer_data = [{'code':customer.code, 'username':customer.username,'category':customer.category,'bo_code':customer.bo_code,'contact_note':customer.contact_note,'call_note':customer.call_note,'zalo_note':customer.zalo_note,'tele_note':customer.tele_note,'sms_note':customer.sms_note,'social_note':customer.social_note,'interaction_content':customer.interaction_content,'interaction_result':customer.interaction_result,'person_in_charge':customer.person_in_charge,'filled_date': customer.filled_date.isoformat(),'assistant':customer.assistant,'creator':customer.creator} for customer in customers]
     paginated_data = customer_data[start_index:end_index]
     paginated_data = customer_data[start_index:end_index]
 
@@ -1330,7 +1333,276 @@ def get_zalo():
         return jsonify({'items':paginated_data,'page':page,'per_page':per_page, 'total_items':len(zalo_data)})
     except TypeError:
         return jsonify({'items':zalo_data,'page':1,'per_page':len(zalo_data), 'total_items':len(zalo_data)})
-
+@crm_bp.route('/tool/zalo', methods= ['POST']) #POST
+def add_zalo():
+    if not request.form:
+        return jsonify({"error": "Missing FORM in request"}), 400
+    data = request.form
+    zalo_code   = data.get('code')
+    if Zalo_Mgt.query.get(zalo_code):
+        return jsonify({"error": "Zalo code is already existed, please try again"}), 409
+    new_zalo  = Zalo_Mgt(
+        code = zalo_code,
+        tool_category = data.get('tool_category'),
+        person_in_charge = data.get('person_in_charge'),
+        zalo_note = data.get('zalo_note'),
+        username = data.get('username'),
+        password = data.get('password'),
+        phone_number = data.get('phone_number'),
+        email = data.get('email'),
+        ip_address = data.get('ip_address'),
+        note = data.get('note'),
+    )
+    db.session.add(new_zalo)
+    try:
+        db.session.commit()
+        return jsonify({'message': 'New zalo added successfully'}),200
+    except Exception as e:
+        db.session.rollback()  # Roll back the transaction if an error occurs
+        return str(e),500
+@crm_bp.route('/tool/zalo/<string:code>', methods =['PUT','OPTIONS'])
+def edit_zalo(code):
+    data = request.form
+    zalo = Zalo_Mgt.query.get(code)
+    if not zalo:
+        return jsonify({'error': 'Zalo not found'}), 404
+    zalo.tool_category = data.get('tool_category')
+    zalo.person_in_charge = data.get('person_in_charge')
+    zalo.zalo_note = data.get('zalo_note'),
+    zalo.username = data.get('username')
+    zalo.password = data.get('password')
+    zalo.phone_number = data.get('phone_number')
+    zalo.email = data.get('email')
+    zalo.ip_address = data.get('ip_address')
+    zalo.note = data.get('note')
+    db.session.commit()
+    return jsonify({'message':'Zalo info updated successfully'}),200
+@crm_bp.route('/tool/zalo/<string:code>', methods= ['DELETE', 'OPTIONS']) #DELETE
+def remove_zalo(code):
+    code = Zalo_Mgt.query.get(code)
+    if code:
+        db.session.delete(code)
+        db.session.commit()
+        return jsonify({'message': 'Code removed successfully'}),200
+    else:
+        return jsonify({'error':'Code not found'}),404
+##########################
+#######Tele Manage########
+##########################
+@crm_bp.route('/tool/tele')
+def get_tele():
+    teles = Tele_Mgt.query.all()
+    tele_data = [{'code': tele.code,
+                'tool_category': tele.tool_category,
+                'person_in_charge': tele.person_in_charge,
+                'tele_note': tele.tele_note,
+                'username': tele.username,
+                'password': tele.password,
+                'phone_number': tele.phone_number,
+                'email': tele.email,
+                'ip_address': tele.ip_address,
+                'note': tele.note} for tele in teles]
+    try:
+        data = request.args
+        page = data.get('page')
+        per_page = data.get('per_page')
+        start_index = (page - 1) * per_page
+        end_index = start_index + per_page
+        paginated_data = tele_data[start_index:end_index]
+        return jsonify({'items':paginated_data,'page':page,'per_page':per_page, 'total_items':len(tele_data)})
+    except TypeError:
+        return jsonify({'items':tele_data,'page':1,'per_page':len(tele_data), 'total_items':len(tele_data)})
+@crm_bp.route('/tool/tele', methods= ['POST']) #POST
+def add_tele():
+    if not request.form:
+        return jsonify({"error": "Missing FORM in request"}), 400
+    data = request.form
+    tele_code   = data.get('code')
+    if Tele_Mgt.query.get(tele_code):
+        return jsonify({"error": "Tele code is already existed, please try again"}), 409
+    new_tele  = Tele_Mgt(
+        code = tele_code,
+        tool_category = data.get('tool_category'),
+        person_in_charge = data.get('person_in_charge'),
+        tele_note = data.get('tele_note'),
+        username = data.get('username'),
+        password = data.get('password'),
+        phone_number = data.get('phone_number'),
+        email = data.get('email'),
+        ip_address = data.get('ip_address'),
+        note = data.get('note'),
+    )
+    db.session.add(new_tele)
+    try:
+        db.session.commit()
+        return jsonify({'message': 'New tele added successfully'}),200
+    except Exception as e:
+        db.session.rollback()  # Roll back the transaction if an error occurs
+        return str(e),500
+@crm_bp.route('/tool/tele/<string:code>', methods =['PUT','OPTIONS'])
+def edit_tele(code):
+    data = request.form
+    tele = Tele_Mgt.query.get(code)
+    if not tele:
+        return jsonify({'error': 'Tele not found'}), 404
+    tele.tool_category = data.get('tool_category')
+    tele.person_in_charge = data.get('person_in_charge')
+    tele.tele_note = data.get('tele_note'),
+    tele.username = data.get('username')
+    tele.password = data.get('password')
+    tele.phone_number = data.get('phone_number')
+    tele.email = data.get('email')
+    tele.ip_address = data.get('ip_address')
+    tele.note = data.get('note')
+    db.session.commit()
+    return jsonify({'message':'Tele info updated successfully'}),200
+@crm_bp.route('/tool/tele/<string:code>', methods= ['DELETE', 'OPTIONS']) #DELETE
+def remove_tele(code):
+    code = Tele_Mgt.query.get(code)
+    if code:
+        db.session.delete(code)
+        db.session.commit()
+        return jsonify({'message': 'Code removed successfully'}),200
+    else:
+        return jsonify({'error':'Code not found'}),404
+##########################
+#######Social Manage########
+##########################
+@crm_bp.route('/tool/social')
+def get_social():
+    socials = Social_Mgt.query.all()
+    social_data = [{'code': social.code,
+                'tool_category': social.tool_category,
+                'person_in_charge': social.person_in_charge,
+                'social_note': social.social_note,
+                'username': social.username,
+                'password': social.password,
+                'phone_number': social.phone_number,
+                'email': social.email,
+                'ip_address': social.ip_address,
+                'note': social.note} for social in socials]
+    try:
+        data = request.args
+        page = data.get('page')
+        per_page = data.get('per_page')
+        start_index = (page - 1) * per_page
+        end_index = start_index + per_page
+        paginated_data = social_data[start_index:end_index]
+        return jsonify({'items':paginated_data,'page':page,'per_page':per_page, 'total_items':len(social_data)})
+    except TypeError:
+        return jsonify({'items':social_data,'page':1,'per_page':len(social_data), 'total_items':len(social_data)})
+@crm_bp.route('/tool/social', methods= ['POST']) #POST
+def add_social():
+    if not request.form:
+        return jsonify({"error": "Missing FORM in request"}), 400
+    data = request.form
+    social_code   = data.get('code')
+    if Social_Mgt.query.get(social_code):
+        return jsonify({"error": "Social code is already existed, please try again"}), 409
+    new_social  = Social_Mgt(
+        code = social_code,
+        tool_category = data.get('tool_category'),
+        person_in_charge = data.get('person_in_charge'),
+        social_note = data.get('social_note'),
+        username = data.get('username'),
+        password = data.get('password'),
+        phone_number = data.get('phone_number'),
+        email = data.get('email'),
+        ip_address = data.get('ip_address'),
+        note = data.get('note'),
+    )
+    db.session.add(new_social)
+    try:
+        db.session.commit()
+        return jsonify({'message': 'New social added successfully'}),200
+    except Exception as e:
+        db.session.rollback()  # Roll back the transaction if an error occurs
+        return str(e),500
+@crm_bp.route('/tool/social/<string:code>', methods =['PUT','OPTIONS'])
+def edit_social(code):
+    data = request.form
+    social = Social_Mgt.query.get(code)
+    if not social:
+        return jsonify({'error': 'Social not found'}), 404
+    social.tool_category = data.get('tool_category')
+    social.person_in_charge = data.get('person_in_charge')
+    social.social_note = data.get('social_note'),
+    social.username = data.get('username')
+    social.password = data.get('password')
+    social.phone_number = data.get('phone_number')
+    social.email = data.get('email')
+    social.ip_address = data.get('ip_address')
+    social.note = data.get('note')
+    db.session.commit()
+    return jsonify({'message':'Social info updated successfully'}),200
+@crm_bp.route('/tool/social/<string:code>', methods= ['DELETE', 'OPTIONS']) #DELETE
+def remove_social(code):
+    code = Social_Mgt.query.get(code)
+    if code:
+        db.session.delete(code)
+        db.session.commit()
+        return jsonify({'message': 'Social code removed successfully'}),200
+    else:
+        return jsonify({'error':'Social code not found'}),404
+##########################
+#######Email Manage########
+##########################
+@crm_bp.route('/tool/email')
+def get_email():
+    emails = Email_Mgt.query.all()
+    email_data = [{'email': email.code,
+                'email_password': email.tool_category,
+                'email_status': email.person_in_charge} for email in emails]
+    try:
+        data = request.args
+        page = data.get('page')
+        per_page = data.get('per_page')
+        start_index = (page - 1) * per_page
+        end_index = start_index + per_page
+        paginated_data = email_data[start_index:end_index]
+        return jsonify({'items':paginated_data,'page':page,'per_page':per_page, 'total_items':len(email_data)})
+    except TypeError:
+        return jsonify({'items':email_data,'page':1,'per_page':len(email_data), 'total_items':len(email_data)})
+@crm_bp.route('/tool/email', methods= ['POST']) #POST
+def add_email():
+    if not request.form:
+        return jsonify({"error": "Missing FORM in request"}), 400
+    data = request.form
+    email   = data.get('email')
+    if Email_Mgt.query.filter(Email_Mgt.email == email).first():
+        return jsonify({"error": "Social code is already existed, please try again"}), 409
+    new_social  = Email_Mgt(
+        email = email,
+        email_password = data.get('email_password'),
+        email_status = data.get('email_status')
+    )
+    db.session.add(new_social)
+    try:
+        db.session.commit()
+        return jsonify({'message': 'New social added successfully'}),200
+    except Exception as e:
+        db.session.rollback()  # Roll back the transaction if an error occurs
+        return str(e),500
+@crm_bp.route('/tool/email/<string:email>', methods =['PUT','OPTIONS'])
+def edit_email(email):
+    data = request.form
+    email = Email_Mgt.query.filter(Email_Mgt.email == email)
+    if not email:
+        return jsonify({'error': 'Email not found'}), 404
+    email.email_password = data.get('email_password')
+    email.email_status = data.get('email_status')
+   
+    db.session.commit()
+    return jsonify({'message':'Email info updated successfully'}),200
+@crm_bp.route('/tool/email/<string:email>', methods= ['DELETE', 'OPTIONS']) #DELETE
+def remove_email(code):
+    code = Social_Mgt.query.get(code)
+    if code:
+        db.session.delete(code)
+        db.session.commit()
+        return jsonify({'message': 'Social code removed successfully'}),200
+    else:
+        return jsonify({'error':'Social code not found'}),404
 #######################################################################################################
 ####User Management
 #crm/user
