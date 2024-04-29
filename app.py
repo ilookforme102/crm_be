@@ -1061,11 +1061,13 @@ def show_tool_category():
     tool_category_data = [{'tool_category': tool_category.tool_category, 'type': tool_category.type} for tool_category in tool_categories]
     try:
         data = request.args
-        page = data.get('page')
-        per_page = data.get('per_page')
+        page = data.get('page',1)
+        per_page = data.get('per_page',10)
+        tool_type = data.get('type')
         start_index = (page - 1) * per_page
         end_index = start_index + per_page
-        paginated_data = tool_category_data[start_index:end_index]
+        type_data = [i for i in tool_category_data if i['type'] == tool_type]
+        paginated_data = type_data[start_index:end_index]
         return jsonify({'items':paginated_data,'page':page,'per_page':per_page, 'total_items':len(tool_category_data)})
     except TypeError:
         return jsonify({'items':tool_category_data,'page':1,'per_page':len(tool_category_data), 'total_items':len(tool_category_data)})
