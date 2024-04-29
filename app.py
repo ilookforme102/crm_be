@@ -57,7 +57,7 @@ class Category(db.Model):
 class Contact_Note(db.Model):
     __tablename__ = 'db_vn168_crm_contact_note'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    note = db.Column(db.String(255), unique = True, nullable = False)
+    contact_note = db.Column(db.String(255), unique = True, nullable = False)
     def __repr__(self):
         return self.note
 #List of call note
@@ -646,7 +646,7 @@ def remove_category(category):
 @crm_bp.route('/contact_note')
 def show_contact_note():
     contact_notes = Contact_Note.query.all()
-    contact_note_data = [{'contact_note': contact_note.note} for contact_note in contact_notes]
+    contact_note_data = [{'contact_note': contact_note.contact_note} for contact_note in contact_notes]
     try:
         data = request.args
         page = int(data.get('page'))
@@ -661,16 +661,16 @@ def show_contact_note():
 def add_contact_note():
     try:
         data_form = request.form
-        data = [{'note':note} for note in data_form.getlist('note')]
+        data = [{'contact_note':contact_note} for contact_note in data_form.getlist('contact_note')]
         if not data or not isinstance(data, list):
             return jsonify({'error': 'Invalid FORM data'})
         for contact_note in data:
-            if 'note'  not in contact_note:
-                return jsonify({'error':'note is require for each note table'})
-            if Contact_Note.query.filter(Contact_Note.note == contact_note["note"]).first():
+            if 'contact_note'  not in contact_note:
+                return jsonify({'error':'contact note is require for each note table'})
+            if Contact_Note.query.filter(Contact_Note.contact_note == contact_note["contact_note"]).first():
                 return jsonify({"error": """the value "{}" is already existed, please try again""".format(contact_note['note'])}), 409
             else:
-                new_contact_note = Contact_Note(note = contact_note['note'])
+                new_contact_note = Contact_Note(contact_note = contact_note['contact_note'])
                 db.session.add(new_contact_note)
         db.session.commit()
         return jsonify({'message':'Note(es) added successfully'}),200
@@ -679,7 +679,7 @@ def add_contact_note():
         return jsonify({'error':str(e)}),500
 @crm_bp.route('/contact_note/<string:contact_note>', methods= ['DELETE', 'OPTIONS'])
 def remove_contact_note(contact_note):
-    contact_note = Contact_Note.query.filter(Contact_Note.note == contact_note).first()
+    contact_note = Contact_Note.query.filter(Contact_Note.contact_note == contact_note).first()
     if contact_note:
         db.session.delete(contact_note)
         db.session.commit()
@@ -1655,7 +1655,12 @@ def remove_email(email):
 ######################################################################################################
 ########################################Reports#######################################################
 ######################################################################################################
-
+@crm_bp.route('/stats/metrics/total_customers')
+def count_customer():
+    query = Customers.query
+    customers = query.count()
+    depositors = query.filter(Customers.interaction_result in ['Khách SEO Nạp Tiền','Khách CRM Nạp Tiền']).count()
+    return jsonify({'total_customer':customers})
 ######################################################################################################
 ################################User Management#######################################################
 ######################################################################################################
