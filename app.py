@@ -147,6 +147,11 @@ class Customer_Record_History(db.Model):
     editor =  db.Column(db.String(255), nullable = False)
     def __repr__(self):
         return self.created_at
+class Tool_Category(db.Model):
+    __tablename__ = 'db_vn168_crm_tool_category'
+    id = db.Column(db.Integer, primary_key=True, unique = True, autoincrement=True)
+    tool_category = db.Column(db.String(255), unique = True, nullable = False)
+    type = db.Column(db.String(255),  nullable=False)
 ########################################################################
 ################Devices Management######################################
 #############################################################################SIM########
@@ -607,7 +612,6 @@ def show_category():
         return  jsonify({'items': categoy_data, 'page': 1, 'per_page': len(categoy_data), 'total_items': len(categoy_data)})
 
 @crm_bp.route('/category', methods= ['POST'])
-
 def add_category():
     try:
         data_form = request.form
@@ -1047,6 +1051,50 @@ def get_pic_crm():
         return jsonify({'items':paginated_data,'page':page,'per_page':per_page, 'total_items':len(pic_data)})
     except TypeError:
         return jsonify({'items':pic_data,'page':1,'per_page':len(pic_data), 'total_items':len(pic_data)})
+######################################################################################
+#/crm/tool_category
+#/crm/tool_category [POST]
+#/crm/tool_category [EDIT] 
+@crm_bp.route('/tool_category', methods =['GET'])
+def show_tool_category():
+    tool_categories = Tool_Category.query.all()
+    tool_category_data = [{'tool_category': tool_category.tool_category, 'type': tool_category.type} for tool_category in tool_categories]
+    try:
+        data = request.args
+        page = data.get('page')
+        per_page = data.get('per_page')
+        start_index = (page - 1) * per_page
+        end_index = start_index + per_page
+        paginated_data = tool_category_data[start_index:end_index]
+        return jsonify({'items':paginated_data,'page':page,'per_page':per_page, 'total_items':len(tool_category_data)})
+    except TypeError:
+        return jsonify({'items':tool_category_data,'page':1,'per_page':len(tool_category_data), 'total_items':len(tool_category_data)})
+@crm_bp.route('/tool_category', methods = ['POST','OPTIONS'])
+def add_tool_category():
+    if not request.form:
+        return jsonify({"error": "Missing FORM in request"}), 400
+    data = request.form
+    tool_category = data.get('tool_category')
+    type = data.get('type')
+    if Tool_Category.query.filter(Tool_Category.tool_category == tool_category).all():
+        return jsonify({'error':'Tool category is already existed, please try again'}),409
+    new_tool_category = Tool_Category(tool_category = tool_category, type = type)
+    db.session.add(new_tool_category)
+    try:
+        db.session.commit()
+        return jsonify({'message': 'Tool category added successfully'}),200
+    except Exception as e:
+        db.session.rollback()  # Roll back the transaction if an error occurs
+        return str(e),500
+@crm_bp.route('/tool_category/<string:tool_category>', methods = ['DELETE','OPTIONS'])
+def delete_tool_category(tool_category):
+    tool_category = Tool_Category.query.filter(Tool_Category.tool_category == tool_category).first()
+    if tool_category:
+        db.session.delete(tool_category)
+        db.session.commit()
+        return jsonify({'message': 'Tool category removed successfully'}),200
+    else:
+        return jsonify({'error':'Tool category not found'}),404
 ##################################################################################
 #######################Devices Management#########################################
 ##################################################################################
@@ -1075,6 +1123,7 @@ def show_phone():
         return jsonify({'items':paginated_data,'page':page,'per_page':per_page, 'total_items':len(phone_data)})
     except TypeError:
         return jsonify({'items':phone_data,'page':1,'per_page':len(phone_data), 'total_items':len(phone_data)})
+
 @crm_bp.route('/device/phone', methods= ['POST']) #POST
 def add_phone():
     if not request.form:
@@ -1782,4 +1831,4 @@ app.register_blueprint(social_bp)
 app.register_blueprint(dev_bp)
 app.register_blueprint(seo_bp)
 if __name__ == '__main__':
-    app.run(port=5000, debug=True)
+    app.run(port=5001, debug=True)
