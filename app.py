@@ -1374,13 +1374,13 @@ def get_zalo():
                 'note': zalo.note} for zalo in zalos]
     try:
         data = request.args
-        page = data.get('page')
-        per_page = data.get('per_page','10')
+        page = data.get('page',1)
+        per_page = data.get('per_page',10)
         start_index = (page - 1) * per_page
         end_index = start_index + per_page
         paginated_data = zalo_data[start_index:end_index]
         return jsonify({'items':paginated_data,'page':page,'per_page':per_page, 'total_items':len(zalo_data)})
-    except TypeError:
+    except Exception:
         return jsonify({'items':zalo_data,'page':1,'per_page':len(zalo_data), 'total_items':len(zalo_data)})
 @crm_bp.route('/tool/zalo', methods= ['POST']) #POST
 def add_zalo():
@@ -1454,7 +1454,7 @@ def get_tele():
     try:
         data = request.args
         page = data.get('page')
-        per_page = data.get('per_page','10')
+        per_page = data.get('per_page')
         start_index = (page - 1) * per_page
         end_index = start_index + per_page
         paginated_data = tele_data[start_index:end_index]
@@ -1533,7 +1533,7 @@ def get_social():
     try:
         data = request.args
         page = data.get('page')
-        per_page = data.get('per_page','10')
+        per_page = data.get('per_page')
         start_index = (page - 1) * per_page
         end_index = start_index + per_page
         paginated_data = social_data[start_index:end_index]
@@ -1605,7 +1605,7 @@ def get_email():
     try:
         data = request.args
         page = data.get('page')
-        per_page = data.get('per_page','10')
+        per_page = data.get('per_page')
         start_index = (page - 1) * per_page
         end_index = start_index + per_page
         paginated_data = email_data[start_index:end_index]
