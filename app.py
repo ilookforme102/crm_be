@@ -1064,13 +1064,23 @@ def show_tool_category():
         page = data.get('page',1)
         per_page = data.get('per_page',10)
         tool_type = data.get('type')
-        start_index = (page - 1) * per_page
-        end_index = start_index + per_page
-        type_data = [i for i in tool_category_data if i['type'] == tool_type]
-        paginated_data = type_data[start_index:end_index]
-        return jsonify({'items':paginated_data,'page':page,'per_page':per_page, 'total_items':len(tool_category_data)})
+        if tool_type != None:
+            start_index = (page - 1) * per_page
+            end_index = start_index + per_page
+            type_data = [i for i in tool_category_data if i['type'] == tool_type]
+            paginated_data = type_data[start_index:end_index]
+            return jsonify({'items':paginated_data,'page':page,'per_page':per_page, 'total_items':len(tool_category_data)})
+        else:
+            start_index = (page - 1) * per_page
+            end_index = start_index + per_page
+            paginated_data = tool_category_data[start_index:end_index]
+            return jsonify({'items':paginated_data,'page':page,'per_page':per_page, 'total_items':len(paginated_data)})
     except TypeError:
         return jsonify({'items':tool_category_data,'page':1,'per_page':len(tool_category_data), 'total_items':len(tool_category_data)})
+    data = request.args
+    type_data  = data.get('type')
+    return jsonify({'mesage':type_data == None})
+
 @crm_bp.route('/tool_category', methods = ['POST','OPTIONS'])
 def add_tool_category():
     if not request.form:
@@ -1661,11 +1671,11 @@ def remove_email(email):
 def count_customer():
     query = Customers.query
     customers = query.count()
-    depositors = query.filter(Customers.interaction_result in ['Khách SEO Nạp Tiền','Khách CRM Nạp Tiền']).count()
-    return jsonify({'total_customer':customers})
-######################################################################################################
-################################User Management#######################################################
-######################################################################################################
+    depositors = query.filter(Customers.interaction_result.in_(['Khách SEO Nạp Tiền','Khách CRM Nạp Tiền'])).count()
+    return jsonify({'total_customer':customers,'depositors':depositors})
+#########################################################################################################
+###################################User Management#######################################################
+#########################################################################################################
 #crm/user
 #crm/user [POST]
 #crm/user [PUT]
