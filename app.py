@@ -1117,8 +1117,8 @@ def show_phone():
                    'phone_note': phone.phone_note} for phone in phones]
     try:
         data = request.args
-        page = data.get('page')
-        per_page = data.get('per_page')
+        page = data.get('page',1)
+        per_page = data.get('per_page',10)
         start_index = (page - 1) * per_page
         end_index = start_index + per_page
         paginated_data = phone_data[start_index:end_index]
@@ -1208,8 +1208,8 @@ def show_ip():
                    'ip_note': ip.ip_note} for ip in ips]
     try:
         data = request.args
-        page = data.get('page')
-        per_page = data.get('per_page')
+        page = data.get('page',1)
+        per_page = data.get('per_page',10)
         start_index = (page - 1) * per_page
         end_index = start_index + per_page
         paginated_data = ip_data[start_index:end_index]
@@ -1294,8 +1294,8 @@ def show_sim():
                 'sim_note': sim.sim_note} for sim in sims]
     try:
         data = request.args
-        page = data.get('page')
-        per_page = data.get('per_page')
+        page = data.get('page',1)
+        per_page = data.get('per_page',10)
         start_index = (page - 1) * per_page
         end_index = start_index + per_page
         paginated_data = sim_data[start_index:end_index]
@@ -1455,8 +1455,8 @@ def get_tele():
                 'note': tele.note} for tele in teles]
     try:
         data = request.args
-        page = data.get('page')
-        per_page = data.get('per_page')
+        page = data.get('page',1)
+        per_page = data.get('per_page',10)
         start_index = (page - 1) * per_page
         end_index = start_index + per_page
         paginated_data = tele_data[start_index:end_index]
@@ -1534,8 +1534,8 @@ def get_social():
                 'note': social.note} for social in socials]
     try:
         data = request.args
-        page = data.get('page')
-        per_page = data.get('per_page')
+        page = data.get('page',1)
+        per_page = data.get('per_page',10)
         start_index = (page - 1) * per_page
         end_index = start_index + per_page
         paginated_data = social_data[start_index:end_index]
@@ -1606,8 +1606,8 @@ def get_email():
                 'email_status': email.person_in_charge} for email in emails]
     try:
         data = request.args
-        page = data.get('page')
-        per_page = data.get('per_page')
+        page = data.get('page',1)
+        per_page = data.get('per_page',10)
         start_index = (page - 1) * per_page
         end_index = start_index + per_page
         paginated_data = email_data[start_index:end_index]
@@ -1677,8 +1677,8 @@ def show_users():
     user_data = {user.username: {'role': user.role,'company_id': user.company_id,'password': user.password,'company_id': user.company_id,'company_name': user.company_name,'team': user.team} for user in users}
     try:
         data = request.args
-        page = data.get('page')
-        per_page = data.get('per_page')
+        page = data.get('page',1)
+        per_page = data.get('per_page',10)
         start_index = (page - 1) * per_page
         end_index = start_index + per_page
         paginated_data = user_data[start_index:end_index]
