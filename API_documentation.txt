@@ -41,6 +41,9 @@
 #/crm/interactive_result [DELETE]
 #/crm/person_in_charge
 #/crm/assistant
+#/crm/tool_category
+#/crm/tool_category [POST]
+#/crm/tool_category [EDIT]
 ################Device Management###############################################
 #/crm/device/phone
 #/crm/device/phone [POST]
@@ -67,13 +70,30 @@
 #/crm/tool/social[POST]
 #/crm/tool/social/<string:code> [PUT]
 #/crm/tool/social/<string:code> [DELETE]
+#/crm/tool/email
+#/crm/tool/email[POST]
+#/crm/tool/email/<string:code> [PUT]
+#/crm/tool/email/<string:code> [DELETE]
+#############Report#################################
+###All endpoint must be used param 
+#Total number of contacted customer (number of rows in the database): Number
+#Total number of customers who have deposited into their betting account (depositors) : Number
+#Conversion rate (depositos/customers) of SEO data and Non-SEO data : Number
+#Time serrie data for total customers 
+#Heatmap data for category data and its result
+#Time serries data for total number of customers for each CRM team member
+#Detail of customers by result category for each CRM team 
+#Total depositors for each CRM team member
+#Time Serrie data for total depositors comparison between CRM customers and SEO customers
+
 ##############Member Management####################
 #crm/user
 #crm/user [POST]
 #crm/user/<string:username> [PUT]
 #crm/user/<string:username> [DELETE]
 ##########################################################
+##############Session Management##########################
+#crm/user_session
+###############IN-and-OUT############
 #/login [GET,POST]
 #/logout
-###############IN-and-OUT############
-#/show_session 

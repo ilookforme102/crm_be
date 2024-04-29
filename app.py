@@ -438,7 +438,7 @@ def edit_record(code):
     db.session.add(new_record_history)
     db.session.commit()
     return jsonify({
-        'message': 'New Record updated successfully',
+        'message': 'New record for {} updated successfully'.format(record.code),
         'record': {
             'code': record.code,
             'username': record.username,
@@ -1375,7 +1375,7 @@ def get_zalo():
     try:
         data = request.args
         page = data.get('page')
-        per_page = data.get('per_page')
+        per_page = data.get('per_page','10')
         start_index = (page - 1) * per_page
         end_index = start_index + per_page
         paginated_data = zalo_data[start_index:end_index]
@@ -1454,7 +1454,7 @@ def get_tele():
     try:
         data = request.args
         page = data.get('page')
-        per_page = data.get('per_page')
+        per_page = data.get('per_page','10')
         start_index = (page - 1) * per_page
         end_index = start_index + per_page
         paginated_data = tele_data[start_index:end_index]
@@ -1533,7 +1533,7 @@ def get_social():
     try:
         data = request.args
         page = data.get('page')
-        per_page = data.get('per_page')
+        per_page = data.get('per_page','10')
         start_index = (page - 1) * per_page
         end_index = start_index + per_page
         paginated_data = social_data[start_index:end_index]
@@ -1605,7 +1605,7 @@ def get_email():
     try:
         data = request.args
         page = data.get('page')
-        per_page = data.get('per_page')
+        per_page = data.get('per_page','10')
         start_index = (page - 1) * per_page
         end_index = start_index + per_page
         paginated_data = email_data[start_index:end_index]
@@ -1652,8 +1652,13 @@ def remove_email(email):
         return jsonify({'message': 'Social code removed successfully'}),200
     else:
         return jsonify({'error':'Social code not found'}),404
-#######################################################################################################
-####User Management
+######################################################################################################
+########################################Reports#######################################################
+######################################################################################################
+
+######################################################################################################
+################################User Management#######################################################
+######################################################################################################
 #crm/user
 #crm/user [POST]
 #crm/user [PUT]
@@ -1732,9 +1737,28 @@ def remove_user(username):
             return jsonify({'error': 'Record not found'}), 404
     else:
         return  jsonify({'error': 'unauthenticated login'}), 401
-###################################################
-# Middleware to check if the user is authenticated#
-###################################################
+#############################################################################################
+####################User Session Managemenet#################################################
+#############################################################################################
+##/crm/user_session##
+@crm_bp.route('/user_session')
+def show_user_working_session():
+    working_sessions = Session_Mgt.query.all()
+    working_session_data = [{'username': working_session.username,'checkin_time':working_session.checkin_time,'checkout_time': working_session.checkout_time} for working_session in working_sessions]
+    try:
+        data = request.args
+        page = data.get('page')
+        per_page = data.get('per_page')
+        start_index = (page - 1) * per_page
+        end_index = start_index + per_page
+        paginated_data = working_session_data[start_index:end_index]
+        return jsonify({'items':paginated_data,'page':page,'per_page':per_page, 'total_items':len(working_session_data)})
+    except TypeError:
+        return jsonify({'items':working_session_data,'page':1,'per_page':len(working_session_data), 'total_items':len(working_session_data)})
+
+#############################################################################################
+#################### Middleware to check if the user is authenticated########################
+#############################################################################################
 @app.before_request
 def check_authentication():
     #skip authorization for the optiohns method bcz it doesnt has cookie
@@ -1785,8 +1809,6 @@ def login():
             return jsonify({'error': 'Invalid username or password'}), 401
 
     return  jsonify({'error': 'unauthenticated login'}), 401
-
-
 # Logout endpoint
 @app.route('/logout')
 def logout():
