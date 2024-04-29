@@ -1313,7 +1313,7 @@ def remove_sim(sim_code):
 @crm_bp.route('/tool/zalo')
 def get_zalo():
     zalos = Zalo_Mgt.query.all()
-    zalo_data = [{'code  ': zalo.code,
+    zalo_data = [{'code': zalo.code,
                 'tool_category': zalo.tool_category,
                 'person_in_charge': zalo.person_in_charge,
                 'zalo_note': zalo.zalo_note,
@@ -1595,10 +1595,10 @@ def edit_email(email):
     db.session.commit()
     return jsonify({'message':'Email info updated successfully'}),200
 @crm_bp.route('/tool/email/<string:email>', methods= ['DELETE', 'OPTIONS']) #DELETE
-def remove_email(code):
-    code = Social_Mgt.query.get(code)
-    if code:
-        db.session.delete(code)
+def remove_email(email):
+    email = Email_Mgt.query.get(email)
+    if email:
+        db.session.delete(email)
         db.session.commit()
         return jsonify({'message': 'Social code removed successfully'}),200
     else:
