@@ -668,7 +668,7 @@ def add_contact_note():
             if 'contact_note'  not in contact_note:
                 return jsonify({'error':'contact note is require for each note table'})
             if Contact_Note.query.filter(Contact_Note.contact_note == contact_note["contact_note"]).first():
-                return jsonify({"error": """the value "{}" is already existed, please try again""".format(contact_note['note'])}), 409
+                return jsonify({"error": """the value "{}" is already existed, please try again""".format(contact_note['contact_note'])}), 409
             else:
                 new_contact_note = Contact_Note(contact_note = contact_note['contact_note'])
                 db.session.add(new_contact_note)
