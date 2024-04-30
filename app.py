@@ -1334,7 +1334,7 @@ def remove_ip(ip_code):
 @crm_bp.route('/device/sim')#GET
 def show_sim():
     sims = Sim_Mgt.query.all()
-    sim_data = [{'sim_code  ': sim.sim_code,
+    sim_data = [{'sim_code': sim.sim_code,
                 'number': sim.number,
                 'provider': sim.provider,
                 'status': sim.status,
@@ -1768,7 +1768,7 @@ def get_customer_per_member():
     data = request.args
     start_datte = data.get('start_date')
     end_date = data.get('end_date')
-    quer
+    query = Customers.query
 
 #########################################################################################################
 ###################################User Management#######################################################
