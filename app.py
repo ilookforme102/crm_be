@@ -1759,7 +1759,7 @@ def count_customer():
 def show_users():
     users = User.query.all()
     # user_data = [{'username':user.username, 'role':user.role,'company_id':user.company_id,'nickname':user.company_name,'team':user.team} for user in users]
-    user_data = [{'username':user.username: ,'role': user.role,'company_id': user.company_id,'password': user.password,'company_id': user.company_id,'company_name': user.company_name,'team': user.team} for user in users]
+    user_data = [{'username':user.username ,'role': user.role,'company_id': user.company_id,'password': user.password,'company_id': user.company_id,'company_name': user.company_name,'team': user.team} for user in users]
     # user_data = {user.username: {'role': user.role,'company_id': user.company_id,'password': user.password,'company_id': user.company_id,'company_name': user.company_name,'team': user.team} for user in users}
     try:
         data = request.args
