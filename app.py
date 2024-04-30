@@ -1891,10 +1891,10 @@ def get_user_info():
 
 @crm_bp.route('/test')
 def test():
-    # addr = request.headers
-    # headers_dict = {key: value for key, value in request.headers.items()}
+    addr = request.remote_addr  
+    headers_dict = [{key: value} for key, value in addr.items()]
     # ip_addr = headers_dict.get()
-    # return jsonify(headers_dict)  # Return headers as a JSON response
+    return jsonify({'text':headers_dict})  # Return headers as a JSON response
     # data = request.form
     # date_string  = data.get('date')
     # date_obj = datetime.datetime.strptime(date_string, '%Y-%m-%d').date()
@@ -1906,8 +1906,8 @@ def test():
     # username = session['username']
     # life_time = app.config['PERMANENT_SESSION_LIFETIME']
     # return addr
-    date_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    return date_str
+    # date_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    # return date_str
 app.register_blueprint(crm_bp)
 app.register_blueprint(social_bp)
 app.register_blueprint(dev_bp)
