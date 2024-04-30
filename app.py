@@ -1170,8 +1170,8 @@ def show_phone():
                    'phone_note': phone.phone_note} for phone in phones]
     try:
         data = request.args
-        page = data.get('page',1)
-        per_page = data.get('per_page',10)
+        page = int(data.get('page',1))
+        per_page = int(data.get('per_page',10))
         start_index = (page - 1) * per_page
         end_index = start_index + per_page
         paginated_data = phone_data[start_index:end_index]
@@ -1713,8 +1713,8 @@ def remove_email(email):
 #Total number of contacted customer (number of rows in the database)
 #Total number of customers who have deposited into their betting account (depositors) : Number
 #Conversion rate (depositos/customers) of SEO data and Non-SEO data : Number
-@crm_bp.route('/stats/metrics/total_customers', methods = ['POST','OPTIONS'])
-def count_customer():
+@crm_bp.route('/stats/metrics/key_metrics', methods = ['POST','OPTIONS'])
+def key_metrics():
     data = request.form
     start_date = data.get('start_date')
     end_date = data.get('end_date')
@@ -1739,20 +1739,36 @@ def count_customer():
     #         'conversion_rate':seo_conversion_rate,
 
     #     }
-    return {
+    return jsonify({
         'vn168':{
             'customers':customers,
+            'depositor':depositors,
             'conversion_rate':conversion_rate
         },
         'seo':{
             'customers': seo_customers,
+            'depositor':seo_depositors,
             'conversion_rate':seo_conversion_rate
         },
         'crm': {
             'customers': crm_customers,
+            'depositor':crm_depositors,
             'conversion_rate': crm_conversion_rate
         }
-    }
+    })
+#crm/stats/charts
+#Time serrie data for total customers 
+#Heatmap data for category data and its result
+#Time serries data for total number of customers for each CRM team member
+#Detail of customers by result category for each CRM team 
+#Total depositors for each CRM team member
+#Time Serrie data for total depositors comparison between CRM customers and SEO customers
+@crm_bp.route('/stats/chart/customers_per_member')
+def get_customer_per_member():
+    data = request.args
+    start_datte = data.get('start_date')
+    end_date = data.get('end_date')
+    quer
 
 #########################################################################################################
 ###################################User Management#######################################################
