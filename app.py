@@ -1891,7 +1891,7 @@ def get_user_info():
 
 @crm_bp.route('/test')
 def test():
-    addr = request.remote_addr  
+    addr = request.headers
     headers_dict = [{key: value} for key, value in addr.items()]
     # ip_addr = headers_dict.get()
     return jsonify({'text':headers_dict})  # Return headers as a JSON response
