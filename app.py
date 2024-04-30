@@ -1837,17 +1837,32 @@ def remove_user(username):
 def show_user_working_session():
     working_sessions = Session_Mgt.query.all()
     working_session_data = [{'username': working_session.username,'login_ip':working_session.login_ip,'checkin_time':working_session.checkin_time,'checkout_time': working_session.checkout_time} for working_session in working_sessions]
-    try:
-        data = request.args
-        page = data.get('page', type= int)
-        per_page = data.get('per_page',type = int)
-        start_index = (page - 1) * per_page
-        end_index = start_index + per_page
-        paginated_data = working_session_data[start_index:end_index]
-        return jsonify({'items':paginated_data,'page':page,'per_page':per_page, 'total_items':len(working_session_data)})
-    except TypeError:
-        return jsonify({'items':working_session_data,'page':1,'per_page':len(working_session_data), 'total_items':len(working_session_data)})
-
+    data = request.args
+    username = data.get('username')
+    if username == None:
+        try:
+            
+            page = data.get('page', type= int)
+            per_page = data.get('per_page',type = int)
+            start_index = (page - 1) * per_page
+            end_index = start_index + per_page
+            paginated_data = working_session_data[start_index:end_index]
+            return jsonify({'items':paginated_data,'page':page,'per_page':per_page, 'total_items':len(working_session_data)})
+        except TypeError:
+            return jsonify({'items':working_session_data,'page':1,'per_page':len(working_session_data), 'total_items':len(working_session_data)})
+    else:
+        try:
+            
+            page = data.get('page', type= int)
+            per_page = data.get('per_page',type = int)
+            start_index = (page - 1) * per_page
+            end_index = start_index + per_page
+            
+            data_for_user = [i for i in working_session_data if i['username'] == username]
+            paginated_data = data_for_user[start_index:end_index]
+            return jsonify({'items':paginated_data,'page':page,'per_page':per_page, 'total_items':len(data_for_user)})
+        except TypeError:
+            return jsonify({'items':working_session_data,'page':1,'per_page':len(working_session_data), 'total_items':len(working_session_data)})
 #############################################################################################
 #################### Middleware to check if the user is authenticated########################
 #############################################################################################
