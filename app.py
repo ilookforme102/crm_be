@@ -1676,14 +1676,14 @@ def add_email():
     db.session.add(new_social)
     try:
         db.session.commit()
-        return jsonify({'message': 'New social added successfully'}),200
+        return jsonify({'message': 'New email added successfully'}),200
     except Exception as e:
         db.session.rollback()  # Roll back the transaction if an error occurs
         return str(e),500
 @crm_bp.route('/tool/email/<string:email>', methods =['PUT','OPTIONS'])
 def edit_email(email):
     data = request.form
-    email = Email_Mgt.query.filter(Email_Mgt.email == email)
+    email = Email_Mgt.query.filter(Email_Mgt.email == email).first()
     if not email:
         return jsonify({'error': 'Email not found'}), 404
     email.email_password = data.get('email_password')
@@ -1693,13 +1693,13 @@ def edit_email(email):
     return jsonify({'message':'Email info updated successfully'}),200
 @crm_bp.route('/tool/email/<string:email>', methods= ['DELETE', 'OPTIONS']) #DELETE
 def remove_email(email):
-    email = Email_Mgt.query.get(email)
+    email = Email_Mgt.query.filter(Email_Mgt.email == email).first()
     if email:
         db.session.delete(email)
         db.session.commit()
-        return jsonify({'message': 'Social code removed successfully'}),200
+        return jsonify({'message': 'Email removed successfully'}),200
     else:
-        return jsonify({'error':'Social code not found'}),404
+        return jsonify({'error':'Email not found'}),404
 ######################################################################################################
 ########################################Reports#######################################################
 ######################################################################################################
