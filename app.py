@@ -1261,8 +1261,8 @@ def show_ip():
                    'ip_note': ip.ip_note} for ip in ips]
     try:
         data = request.args
-        page = data.get('page',1)
-        per_page = data.get('per_page',10)
+        page = int(data.get('page',1))
+        per_page = int(data.get('per_page',10))
         start_index = (page - 1) * per_page
         end_index = start_index + per_page
         paginated_data = ip_data[start_index:end_index]
@@ -1347,8 +1347,8 @@ def show_sim():
                 'sim_note': sim.sim_note} for sim in sims]
     try:
         data = request.args
-        page = data.get('page',1)
-        per_page = data.get('per_page',10)
+        page = int(data.get('page',1))
+        per_page = int(data.get('per_page',10))
         start_index = (page - 1) * per_page
         end_index = start_index + per_page
         paginated_data = sim_data[start_index:end_index]
