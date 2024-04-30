@@ -1166,7 +1166,7 @@ def show_phone():
                    'online_agency': phone.online_agency,
                    'num_sim': phone.num_sim,
                    'number1': phone.number1,
-                   'number2	': phone.number2,
+                   'number2': phone.number2,
                    'phone_note': phone.phone_note} for phone in phones]
     try:
         data = request.args
@@ -1732,21 +1732,27 @@ def count_customer():
     conversion_rate =  100*depositors/customers
     seo_conversion_rate =  100*seo_depositors/seo_customers
     crm_conversion_rate =  100*crm_depositors/crm_customers
-    return {'text':crm_conversion_rate}
     # return {
-    #     'vn168':{
     #         'customers':customers,
-    #         'conversion_rate':conversion_rate
-    #     },
-    #     'seo':{
+    #         'conversion_rate':conversion_rate,
     #         'customers': seo_customers,
-    #         'conversion_rate':seo_conversion_rate
-    #     },
-    #     'crm': {
-    #         'customers': crm_customers,
-    #         conversion_rate: crm_conversion_rate
+    #         'conversion_rate':seo_conversion_rate,
+
     #     }
-    # }
+    return {
+        'vn168':{
+            'customers':customers,
+            'conversion_rate':conversion_rate
+        },
+        'seo':{
+            'customers': seo_customers,
+            'conversion_rate':seo_conversion_rate
+        },
+        'crm': {
+            'customers': crm_customers,
+            'conversion_rate': crm_conversion_rate
+        }
+    }
 
 #########################################################################################################
 ###################################User Management#######################################################
