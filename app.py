@@ -263,7 +263,15 @@ crm_bp = Blueprint('crm_bp', __name__, url_prefix='/crm')
 social_bp = Blueprint('social_bp', __name__, url_prefix='/social')
 dev_bp = Blueprint('dev_bp', __name__, url_prefix='/dev')
 seo_bp = Blueprint('seo_bp', __name__, url_prefix='/seo')
+###############################Preset Function#######################
+def get_ip_addr():
+    header = request.headers
+    if 'X-Forwarded-For' in header:
+        user_ip = header['X-Forwarded-For'].split(',')[0].strip()  # Take the first IP in the list
+    else:
+        user_ip = request.remote_addr  # Fallback to the direct connection IP
 
+    return user_ip
 ##################################################
 ##Create aall tables that defined above
 @app.route('/create_tables')
@@ -1861,7 +1869,8 @@ def login():
             role = User.query.get(session['username']).role
             company_name = User.query.get(session['username']).company_name
             session['role'] = role
-            new_working_session = Session_Mgt(username=username,checkin_time = session['checkin_time'],checkout_time = session['checkout_time'])
+            login_ip = get_ip_addr()
+            new_working_session = Session_Mgt(username=username,checkin_time = session['checkin_time'],login_ip = login_ip,checkout_time = session['checkout_time'])
             db.session.add(new_working_session)
             db.session.commit()
             return jsonify({'message': 'Welcome, {},you are logging in as {}!'.format(session['username'],session['role']),'role': session['role'],'username':session['username'],'company_name': company_name})#session['username']
@@ -1891,10 +1900,11 @@ def get_user_info():
 
 @crm_bp.route('/test')
 def test():
-    addr = request.headers
-    headers_dict = [{key: value} for key, value in addr.items()]
-    # ip_addr = headers_dict.get()
-    return jsonify({'text':headers_dict})  # Return headers as a JSON response
+    ip = get_ip_addr()
+    return ip
+    # headers_dict = [{key: value} for key, value in addr.items()]
+    # # ip_addr = headers_dict.get()
+    # return headers_dict  # Return headers as a JSON response
     # data = request.form
     # date_string  = data.get('date')
     # date_obj = datetime.datetime.strptime(date_string, '%Y-%m-%d').date()
