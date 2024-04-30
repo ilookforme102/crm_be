@@ -1077,27 +1077,51 @@ def show_tool_category():
             return jsonify({'items':paginated_data,'page':page,'per_page':per_page, 'total_items':len(paginated_data)})
     except TypeError:
         return jsonify({'items':tool_category_data,'page':1,'per_page':len(tool_category_data), 'total_items':len(tool_category_data)})
-    data = request.args
-    type_data  = data.get('type')
-    return jsonify({'mesage':type_data == None})
+    # data = request.args
+    # type_data  = data.get('type')
+    # return jsonify({'mesage':type_data == None})
 
 @crm_bp.route('/tool_category', methods = ['POST','OPTIONS'])
 def add_tool_category():
-    if not request.form:
-        return jsonify({"error": "Missing FORM in request"}), 400
-    data = request.form
-    tool_category = data.get('tool_category')
-    type = data.get('type')
-    if Tool_Category.query.filter(Tool_Category.tool_category == tool_category).all():
-        return jsonify({'error':'Tool category is already existed, please try again'}),409
-    new_tool_category = Tool_Category(tool_category = tool_category, type = type)
-    db.session.add(new_tool_category)
     try:
+        data = request.json
+        tool_category_list = [{'tool_category':category.get('tool_category'), 'type':category.get('type')} for category in data]
+        if not tool_category_list or not isinstance(tool_category_list, list):
+            return jsonify({'error': 'Invalid JSON data'}), 400
+
+        for category in tool_category_list:
+            # Validate data (e.g., check if bo_code is provided)
+            if 'tool_category' not in category:
+                return jsonify({'error': 'tool_category is required for each BO'}), 400
+            if 'type' not in category:
+                return jsonify({'error': 'type is required for each BO'}), 400
+            if Tool_Category.query.filter(Tool_Category.tool_category ==  category["tool_category"]).first():
+                return jsonify({"error": """the value "{}" is already existed, please try again""".format(category["tool_category"])}), 409
+            # Create a new BO object and add it to the session
+            new_tool_category = Tool_Category(tool_category= category['tool_category'], type = category['type'])
+            db.session.add(new_tool_category)
+
+        # Commit the changes to the database
         db.session.commit()
-        return jsonify({'message': 'Tool category added successfully'}),200
+        return jsonify({'message': 'Tool category successfully'}), 200
     except Exception as e:
-        db.session.rollback()  # Roll back the transaction if an error occurs
-        return str(e),500
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+    # if not request.form:
+    #     return jsonify({"error": "Missing FORM in request"}), 400
+    # data = request.json
+    # tool_category = data.get('tool_category')
+    # type = data.get('type')
+    # if Tool_Category.query.filter(Tool_Category.tool_category == tool_category).all():
+    #     return jsonify({'error':'Tool category is already existed, please try again'}),409
+    # new_tool_category = Tool_Category(tool_category = tool_category, type = type)
+    # db.session.add(new_tool_category)
+    # try:
+    #     db.session.commit()
+    #     return jsonify({'message': 'Tool category added successfully'}),200
+    # except Exception as e:
+    #     db.session.rollback()  # Roll back the transaction if an error occurs
+    #     return str(e),500
 @crm_bp.route('/tool_category/<string:tool_category>', methods = ['DELETE','OPTIONS'])
 def delete_tool_category(tool_category):
     tool_category = Tool_Category.query.filter(Tool_Category.tool_category == tool_category).first()
