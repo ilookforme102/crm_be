@@ -1720,20 +1720,20 @@ def count_customer():
     end_date = data.get('end_date')
     query = Customers.query
     query = query.filter(and_(
-        Customers.filled_date >= start_date,
-        Customers.filled_date <= end_date
+        Customers.filled_date >= datetime.strptime(start_date, '%Y-%m-%d'),
+        Customers.filled_date <= datetime.strptime(end_date, '%Y-%m-%d')
     ))
     customers = query.count()
     seo_customers = query.filter(Customers.category == 'SEO Data').count()
     crm_customers  = query.filter(Customers.category != 'SEO Data').count()
-    seo_depositors = query.filter(Customers.interaction_result.in_(['Khách SEO Nạp Tiền'])).count()
-    crm_depositors = query.filter(Customers.interaction_result.in_(['Khách CRM Nạp Tiền'])).count()
+    seo_depositors = query.filter(Customers.interaction_result == ['Khách SEO Nạp Tiền']).count()
+    crm_depositors = query.filter(Customers.interaction_result == ['Khách CRM Nạp Tiền']).count()
     depositors = query.filter(Customers.interaction_result.in_(['Khách SEO Nạp Tiền','Khách CRM Nạp Tiền'])).count()
     conversion_rate =  100*depositors/customers
     seo_conversion_rate =  100*seo_depositors/seo_customers
     crm_conversion_rate =  100*crm_depositors/crm_customers
-    return {'number':customers}
-    # return jsonify({
+    return {'text':crm_conversion_rate}
+    # return {
     #     'vn168':{
     #         'customers':customers,
     #         'conversion_rate':conversion_rate
@@ -1746,7 +1746,7 @@ def count_customer():
     #         'customers': crm_customers,
     #         conversion_rate: crm_conversion_rate
     #     }
-    # })
+    # }
 
 #########################################################################################################
 ###################################User Management#######################################################
@@ -1836,7 +1836,7 @@ def remove_user(username):
 @crm_bp.route('/user_session')
 def show_user_working_session():
     working_sessions = Session_Mgt.query.all()
-    working_session_data = [{'username': working_session.username,'checkin_time':working_session.checkin_time,'checkout_time': working_session.checkout_time} for working_session in working_sessions]
+    working_session_data = [{'username': working_session.username,'login_ip':working_session.login_ip,'checkin_time':working_session.checkin_time,'checkout_time': working_session.checkout_time} for working_session in working_sessions]
     try:
         data = request.args
         page = data.get('page',1)
