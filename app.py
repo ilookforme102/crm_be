@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request, session, make_response,redirect, url_for,Blueprint
 from flask_cors import CORS,cross_origin
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Date,Time,DateTime , and_
+from sqlalchemy import Date,Time,DateTime , and_, func
 import datetime
 from datetime import datetime, timedelta
 app = Flask(__name__)
@@ -1250,7 +1250,7 @@ def remove_phone(device_code):
 @crm_bp.route('/device/ip')#GET
 def show_ip():
     ips = IP_Mgt.query.all()
-    ip_data = [{'ip_code ': ip.ip_code,
+    ip_data = [{'ip_code': ip.ip_code,
                    'ip_info': ip.ip_info,
                    'expired_date': ip.expired_date,
                    'country': ip.country,
@@ -1768,7 +1768,27 @@ def get_customer_per_member():
     data = request.args
     start_datte = data.get('start_date')
     end_date = data.get('end_date')
+    pic = data.get('person_in_charge')
     query = Customers.query
+    results = Customers.query.with_entities(
+        func.date(Customers.filled_date).label('date'),
+        func.count(func.date(Customers.filled_date)).label('customer_by_date'),
+        Customers.person_in_charge,
+    ).group_by(
+        func.date(Customers.filled_date),
+        Customers.person_in_charge,
+    ).filter(and_)
+    all()
+    data = [
+        {
+            'date': result.date.isoformat() if result.date else None,
+            'customer_by_date': result.customer_by_date,
+            'person_in_charge': result.person_in_charge,
+            'interaction_result': result.interaction_result
+        } for result in results
+    ]
+
+    return jsonify(data)
 
 #########################################################################################################
 ###################################User Management#######################################################
