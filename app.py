@@ -1839,8 +1839,8 @@ def show_user_working_session():
     working_session_data = [{'username': working_session.username,'login_ip':working_session.login_ip,'checkin_time':working_session.checkin_time,'checkout_time': working_session.checkout_time} for working_session in working_sessions]
     try:
         data = request.args
-        page = data.get('page',1)
-        per_page = data.get('per_page',10)
+        page = data.get('page', type= int)
+        per_page = data.get('per_page',type = int)
         start_index = (page - 1) * per_page
         end_index = start_index + per_page
         paginated_data = working_session_data[start_index:end_index]
