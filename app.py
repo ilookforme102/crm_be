@@ -253,6 +253,7 @@ class Session_Mgt(db.Model):
     __tablename__ = 'db_vn168_crm_session_mgt'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(255))
+    login_ip = db.Column(db.String(255),nullable = True)
     # ip_addr ==
     checkin_time = db.Column(DateTime , nullable = False)
     checkout_time = db.Column(db.String(255), nullable = False)
@@ -1059,24 +1060,27 @@ def get_pic_crm():
 def show_tool_category():
     tool_categories = Tool_Category.query.all()
     tool_category_data = [{'tool_category': tool_category.tool_category, 'type': tool_category.type} for tool_category in tool_categories]
-    try:
-        data = request.args
-        page = data.get('page',1)
-        per_page = data.get('per_page',10)
-        tool_type = data.get('type')
-        if tool_type != None:
-            start_index = (page - 1) * per_page
-            end_index = start_index + per_page
-            type_data = [i for i in tool_category_data if i['type'] == tool_type]
-            paginated_data = type_data[start_index:end_index]
-            return jsonify({'items':paginated_data,'page':page,'per_page':per_page, 'total_items':len(tool_category_data)})
-        else:
-            start_index = (page - 1) * per_page
-            end_index = start_index + per_page
-            paginated_data = tool_category_data[start_index:end_index]
-            return jsonify({'items':paginated_data,'page':page,'per_page':per_page, 'total_items':len(paginated_data)})
-    except TypeError:
-        return jsonify({'items':tool_category_data,'page':1,'per_page':len(tool_category_data), 'total_items':len(tool_category_data)})
+    data = request.form
+    type_data = data.get('type')
+    return type_data
+    # try:
+    #     data = request.args
+    #     page = data.get('page')
+    #     per_page = data.get('per_page',10)
+    #     tool_type = data.get('type')
+    #     if tool_type != None:
+    #         start_index = (page - 1) * per_page
+    #         end_index = start_index + per_page
+    #         type_data = [i for i in tool_category_data if i['type'] == tool_type]
+    #         paginated_data = type_data[start_index:end_index]
+    #         return jsonify({'items':paginated_data,'page':page,'per_page':per_page, 'total_items':len(tool_category_data)})
+    #     else:
+    #         start_index = (page - 1) * per_page
+    #         end_index = start_index + per_page
+    #         paginated_data = tool_category_data[start_index:end_index]
+    #         return jsonify({'items':paginated_data,'page':page,'per_page':per_page, 'total_items':len(paginated_data)})
+    # except TypeError:
+    #     return jsonify({'items':tool_category_data,'page':1,'per_page':len(tool_category_data), 'total_items':len(tool_category_data)})
     # data = request.args
     # type_data  = data.get('type')
     # return jsonify({'mesage':type_data == None})
@@ -1635,9 +1639,9 @@ def remove_social(code):
 @crm_bp.route('/tool/email')
 def get_email():
     emails = Email_Mgt.query.all()
-    email_data = [{'email': email.code,
-                'email_password': email.tool_category,
-                'email_status': email.person_in_charge} for email in emails]
+    email_data = [{'email': email.email,
+                'email_password': email.email_password,
+                'email_status': email.email_status} for email in emails]
     try:
         data = request.args
         page = data.get('page',1)
@@ -1691,12 +1695,27 @@ def remove_email(email):
 ######################################################################################################
 ########################################Reports#######################################################
 ######################################################################################################
-@crm_bp.route('/stats/metrics/total_customers')
+#Total number of contacted customer (number of rows in the database)
+#Total number of customers who have deposited into their betting account (depositors) : Number
+#Conversion rate (depositos/customers) of SEO data and Non-SEO data : Number
+@crm_bp.route('/stats/metrics/total_customers', methods = ['POST','OPTIONS'])
 def count_customer():
+    data = request.form
+    start_date = data.get('start_date')
+    end_date = data.get('end_date')
     query = Customers.query
+    query = query.filter(and_(
+        Customers.filled_date >= start_date,
+        Customers.filled_date <= end_date
+    ))
     customers = query.count()
+    seo_data = query.filter(Customers.category == 'SEO Data').count()
+    crm_data  = query.filter(Customers.category != 'SEO Data').count()
+    seo_depositors = query.filter(Customers.interaction_result.in_(['Khách SEO Nạp Tiền','Khách CRM Nạp Tiền'])).count()
+    crm_depositors = query.filter(Customers.interaction_result.in_(['Khách SEO Nạp Tiền','Khách CRM Nạp Tiền'])).count()
     depositors = query.filter(Customers.interaction_result.in_(['Khách SEO Nạp Tiền','Khách CRM Nạp Tiền'])).count()
     return jsonify({'total_customer':customers,'depositors':depositors})
+
 #########################################################################################################
 ###################################User Management#######################################################
 #########################################################################################################
@@ -1788,8 +1807,8 @@ def show_user_working_session():
     working_session_data = [{'username': working_session.username,'checkin_time':working_session.checkin_time,'checkout_time': working_session.checkout_time} for working_session in working_sessions]
     try:
         data = request.args
-        page = data.get('page')
-        per_page = data.get('per_page')
+        page = data.get('page',1)
+        per_page = data.get('per_page',10)
         start_index = (page - 1) * per_page
         end_index = start_index + per_page
         paginated_data = working_session_data[start_index:end_index]
