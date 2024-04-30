@@ -1068,9 +1068,17 @@ def get_pic_crm():
 def show_tool_category():
     tool_categories = Tool_Category.query.all()
     tool_category_data = [{'tool_category': tool_category.tool_category, 'type': tool_category.type} for tool_category in tool_categories]
-    data = request.form
-    type_data = data.get('type')
-    return type_data
+    data = request.args
+    tool_type = data.get('type')
+    if tool_type != None:
+        type_data = [i for i in tool_category_data if i['type'] == tool_type]
+        return jsonify({'items':type_data,'total_items':len(type_data)})
+    else:
+        return jsonify({'items':tool_category_data,'total_items':len(tool_category_data)})
+
+        # page = data.get('page')
+        # per_page = data.get('per_page',10)
+    # data = request.form
     # try:
     #     data = request.args
     #     page = data.get('page')
@@ -1089,9 +1097,8 @@ def show_tool_category():
     #         return jsonify({'items':paginated_data,'page':page,'per_page':per_page, 'total_items':len(paginated_data)})
     # except TypeError:
     #     return jsonify({'items':tool_category_data,'page':1,'per_page':len(tool_category_data), 'total_items':len(tool_category_data)})
-    # data = request.args
     # type_data  = data.get('type')
-    # return jsonify({'mesage':type_data == None})
+    # return jsonify({'mesage':type_data })
 
 @crm_bp.route('/tool_category', methods = ['POST','OPTIONS'])
 def add_tool_category():
@@ -1717,12 +1724,29 @@ def count_customer():
         Customers.filled_date <= end_date
     ))
     customers = query.count()
-    seo_data = query.filter(Customers.category == 'SEO Data').count()
-    crm_data  = query.filter(Customers.category != 'SEO Data').count()
-    seo_depositors = query.filter(Customers.interaction_result.in_(['Khách SEO Nạp Tiền','Khách CRM Nạp Tiền'])).count()
-    crm_depositors = query.filter(Customers.interaction_result.in_(['Khách SEO Nạp Tiền','Khách CRM Nạp Tiền'])).count()
+    seo_customers = query.filter(Customers.category == 'SEO Data').count()
+    crm_customers  = query.filter(Customers.category != 'SEO Data').count()
+    seo_depositors = query.filter(Customers.interaction_result.in_(['Khách SEO Nạp Tiền'])).count()
+    crm_depositors = query.filter(Customers.interaction_result.in_(['Khách CRM Nạp Tiền'])).count()
     depositors = query.filter(Customers.interaction_result.in_(['Khách SEO Nạp Tiền','Khách CRM Nạp Tiền'])).count()
-    return jsonify({'total_customer':customers,'depositors':depositors})
+    conversion_rate =  100*depositors/customers
+    seo_conversion_rate =  100*seo_depositors/seo_customers
+    crm_conversion_rate =  100*crm_depositors/crm_customers
+    return {'number':customers}
+    # return jsonify({
+    #     'vn168':{
+    #         'customers':customers,
+    #         'conversion_rate':conversion_rate
+    #     },
+    #     'seo':{
+    #         'customers': seo_customers,
+    #         'conversion_rate':seo_conversion_rate
+    #     },
+    #     'crm': {
+    #         'customers': crm_customers,
+    #         conversion_rate: crm_conversion_rate
+    #     }
+    # })
 
 #########################################################################################################
 ###################################User Management#######################################################
