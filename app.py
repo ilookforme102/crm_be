@@ -1824,7 +1824,22 @@ def get_customer_per_member():
         ]
 
         return jsonify(data)
-@crm_bp.route('/stats/charts/person')
+# @crm_bp.route('/stats/charts/person')
+# def get_depositor_each():
+# #data format :
+# # {
+# #"team A": {data for team A},
+# # "team B": {data for team B}
+# # }
+#     query = Customers.query
+#     results1 = query.with_entities(
+#         func.date(Customers.filled_date).label('date'),
+#         func.count(func.date(Customers.filled_date)).label('customer_by_date'),
+#         Customers.person_in_charge,
+#     ).group_by(
+#         func.date(Customers.filled_date),
+#         Customers.person_in_charge,
+#     )
 #########################################################################################################
 ###################################User Management#######################################################
 #########################################################################################################
@@ -1913,7 +1928,7 @@ def remove_user(username):
 ##/crm/user_session##
 @crm_bp.route('/user_session')
 def show_user_working_session():
-    working_sessions = Session_Mgt.query.all()
+    working_sessions = Session_Mgt.query.order_by(Session_Mgt.checkin_time.desc()).all()
     working_session_data = [{'username': working_session.username,'login_ip':working_session.login_ip,'checkin_time':working_session.checkin_time,'checkout_time': working_session.checkout_time} for working_session in working_sessions]
     data = request.args
     username = data.get('username')

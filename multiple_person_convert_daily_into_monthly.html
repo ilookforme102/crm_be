@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Sales Data Visualization</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <div id="plot"></div>
+    <button onclick="switchTo('daily')">Daily Sales</button>
+    <button onclick="switchTo('monthly')">Monthly Sales</button>
+
+    <script>
+        const startDate = new Date('2023-01-01');
+        const endDate = new Date('2023-12-31');
+        const timeDiff = endDate - startDate;
+        const dayCount = timeDiff / (1000 * 60 * 60 * 24);
+
+        let dates = [];
+        for (let i = 0; i <= dayCount; i++) {
+            const newDate = new Date(startDate.getTime() + i * 1000 * 60 * 60 * 24);
+            dates.push(newDate.toISOString().slice(0, 10));  // Format as 'YYYY-MM-DD'
+        }
+
+        // Teams array
+        const teams = ['A', 'B', 'C'];
+        const salesData = {};
+        const monthlySalesData = {};
+
+        // Initialize sales data structures
+        teams.forEach(team => {
+            salesData[team] = Array.from({ length: dayCount + 1 }, () => Math.floor(Math.random() * 150) + 50);
+            monthlySalesData[team] = {};
+
+            // Compute monthly sales
+            dates.forEach((date, index) => {
+                const month = date.slice(0, 7); // Get YYYY-MM
+                if (!monthlySalesData[team][month]) {
+                    monthlySalesData[team][month] = 0;
+                }
+                monthlySalesData[team][month] += salesData[team][index];
+            });
+        });
+
+        // Create traces for each team
+        function createTraces(data, period) {
+            return teams.map(team => {
+                return {
+                    x: period === 'daily' ? dates : Object.keys(monthlySalesData[team]),
+                    y: period === 'daily' ? data[team] : Object.values(monthlySalesData[team]),
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    name: `Team ${team}`
+                };
+            });
+        }
+
+        let currentData = createTraces(salesData, 'daily');
+        const layout = {
+            title: 'Team Sales Data Visualization',
+            xaxis: { title: 'Date' },
+            yaxis: { title: 'Sales' }
+        };
+
+        Plotly.newPlot('plot', currentData, layout);
+
+        // Function to switch view
+        function switchTo(period) {
+            let newTraces = createTraces(period === 'daily' ? salesData : monthlySalesData, period);
+            Plotly.react('plot', newTraces, layout);
+        }
+    </script>
+</body>
+</html>

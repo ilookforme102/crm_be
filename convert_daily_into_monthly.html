@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Data Visualization</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <div id="plot"></div>
+    <button onclick="switchToDaily()">Daily Sales</button>
+    <button onclick="switchToMonthly()">Monthly Sales</button>
+
+    <script>
+        // Generate synthetic daily sales data
+        const startDate = new Date('2023-01-01');
+        const endDate = new Date('2023-12-31');
+        const timeDiff = endDate - startDate;
+        const dayCount = timeDiff / (1000 * 60 * 60 * 24);
+
+        let dates = [];
+        let sales = [];
+        for (let i = 0; i <= dayCount; i++) {
+            const newDate = new Date(startDate.getTime() + i * 1000 * 60 * 60 * 24);
+            dates.push(newDate.toISOString().slice(0, 10));  // Format as 'YYYY-MM-DD'
+            sales.push(Math.floor(Math.random() * 150) + 50); // Sales between 50 and 200
+        }
+
+        // Compute monthly sales
+        let monthlySales = {};
+        dates.forEach((date, index) => {
+            const month = date.slice(0, 7); // Get YYYY-MM
+            if (!monthlySales[month]) {
+                monthlySales[month] = 0;
+            }
+            monthlySales[month] += sales[index];
+        });
+
+        const monthlyDates = Object.keys(monthlySales);
+        const monthlyValues = Object.values(monthlySales);
+
+        // Create traces
+        const dailyTrace = {
+            x: dates,
+            y: sales,
+            type: 'scatter',
+            mode: 'lines+markers',
+            name: 'Daily Sales'
+        };
+
+        const monthlyTrace = {
+            x: monthlyDates,
+            y: monthlyValues,
+            type: 'scatter',
+            mode: 'lines+markers',
+            name: 'Monthly Sales'
+        };
+
+        // Initial plot setup
+        const layout = {
+            title: 'Sales Data Visualization',
+            xaxis: {
+                title: 'Date'
+            },
+            yaxis: {
+                title: 'Sales'
+            }
+        };
+
+        let currentData = [dailyTrace];
+        Plotly.newPlot('plot', currentData, layout);
+
+        // Function to switch to daily sales
+        function switchToDaily() {
+            Plotly.react('plot', [dailyTrace], layout);
+        }
+
+        // Function to switch to monthly sales
+        function switchToMonthly() {
+            Plotly.react('plot', [monthlyTrace], layout);
+        }
+    </script>
+</body>
+</html>
