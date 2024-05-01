@@ -1824,22 +1824,40 @@ def get_customer_per_member():
         ]
 
         return jsonify(data)
-# @crm_bp.route('/stats/charts/person')
-# def get_depositor_each():
-# #data format :
-# # {
-# #"team A": {data for team A},
-# # "team B": {data for team B}
-# # }
-#     query = Customers.query
-#     results1 = query.with_entities(
-#         func.date(Customers.filled_date).label('date'),
-#         func.count(func.date(Customers.filled_date)).label('customer_by_date'),
-#         Customers.person_in_charge,
-#     ).group_by(
-#         func.date(Customers.filled_date),
-#         Customers.person_in_charge,
-#     )
+@crm_bp.route('/stats/charts/person')
+#SELECT COUNT(`code`),person_in_charge FROM `db_vn168_crm_customer` WHERE `interaction_result` 
+#in ('Khách SEO Nạp Tiền','Khách CRM Nạp Tiền') 
+#AND filled_date <= '2024-04-30' 
+#AND filled_date >= '2024-04-20' 
+#GROUP BY person_in_charge;
+
+def get_depositor_each():
+    # #data format :
+    # # {
+    # #"team A": {data for team A},
+    # # "team B": {data for team B}
+    # # }
+    data = request.args
+    start_date = data.get('start_date')
+    end_date = data.get('end_date')
+    query = Customers.query
+    results = query.with_entities(
+        func.count(Customers.code).label('Depositor'),
+        Customers.person_in_charge,
+    ).filter(and_(
+        Customers.interaction_result.in_(['Khách SEO Nạp Tiền','Khách CRM Nạp Tiền']),
+        Customers.filled_date >= start_date,
+        Customers.filled_date <= end_date
+                  )).group_by(
+        Customers.person_in_charge).all()
+    query_data = [
+        {
+            'pic': result.person_in_charge,
+            'amount':result.Depositor
+        } for result in results
+    ]
+    return jsonify(query_data)
+    
 #########################################################################################################
 ###################################User Management#######################################################
 #########################################################################################################
@@ -1855,8 +1873,8 @@ def show_users():
     # user_data = {user.username: {'role': user.role,'company_id': user.company_id,'password': user.password,'company_id': user.company_id,'company_name': user.company_name,'team': user.team} for user in users}
     try:
         data = request.args
-        page = data.get('page',1)
-        per_page = data.get('per_page',10)
+        page = int(data.get('page',1))
+        per_page = int(data.get('per_page',10))
         start_index = (page - 1) * per_page
         end_index = start_index + per_page
         paginated_data = user_data[start_index:end_index]
