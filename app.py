@@ -1367,6 +1367,7 @@ def add_sim():
         sim_code = sim_code,
         number = data.get('number'),
         provider = data.get('provider'),
+        status = data.gget('status'),
         package = data.get('package'),
         zalo_status = data.get('zalo_status'),
         tele_status = data.get('tele_status'),
@@ -1763,33 +1764,66 @@ def key_metrics():
 #Detail of customers by result category for each CRM team 
 #Total depositors for each CRM team member
 #Time Serrie data for total depositors comparison between CRM customers and SEO customers
-@crm_bp.route('/stats/chart/customers_per_member')
+@crm_bp.route('/stats/charts/customers_per_member')
 def get_customer_per_member():
     data = request.args
-    start_datte = data.get('start_date')
+    start_date = data.get('start_date')
     end_date = data.get('end_date')
     pic = data.get('person_in_charge')
     query = Customers.query
-    results = Customers.query.with_entities(
+    results1 = query.with_entities(
         func.date(Customers.filled_date).label('date'),
         func.count(func.date(Customers.filled_date)).label('customer_by_date'),
         Customers.person_in_charge,
     ).group_by(
         func.date(Customers.filled_date),
         Customers.person_in_charge,
-    ).filter(and_)
-    all()
-    data = [
-        {
-            'date': result.date.isoformat() if result.date else None,
-            'customer_by_date': result.customer_by_date,
-            'person_in_charge': result.person_in_charge,
-            'interaction_result': result.interaction_result
-        } for result in results
-    ]
+    )
+    if pic: # and Customers.query.filter(Customers.person_in_charge == pic):
+        if pic != 'all':
+            results  = results1.filter(and_(
+                Customers.person_in_charge == pic,
+                Customers.filled_date >= start_date,
+                Customers.filled_date <= end_date
+            )).all()
+            data = [
+                {
+                    'date': result.date.isoformat() if result.date else None,
+                    'customer_by_date': result.customer_by_date,
+                    'person_in_charge': result.person_in_charge,
+                } for result in results
+            ]
 
-    return jsonify(data)
+            return jsonify(data)
+        if pic == 'all':
+            results  = results1.filter(and_(
+                Customers.filled_date >= start_date,
+                Customers.filled_date <= end_date
+            )).all()
+            data = [
+                {
+                    'date': result.date.isoformat() if result.date else None,
+                    'customer_by_date': result.customer_by_date,
+                    'person_in_charge': result.person_in_charge,
+                } for result in results
+            ]
 
+            return jsonify(data)
+    else:
+        results  = results1.filter(and_(
+            Customers.filled_date >= start_date,
+            Customers.filled_date <= end_date
+        )).all()
+        data = [
+            {
+                'date': result.date.isoformat() if result.date else None,
+                'customer_by_date': result.customer_by_date,
+                'person_in_charge': result.person_in_charge,
+            } for result in results
+        ]
+
+        return jsonify(data)
+@crm_bp.route('/stats/charts/person')
 #########################################################################################################
 ###################################User Management#######################################################
 #########################################################################################################
