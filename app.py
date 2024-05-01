@@ -1391,6 +1391,7 @@ def edit_sim(sim_code):
         return jsonify({'error': 'Sim not found'}), 404
     sim.number = data.get('number')
     sim.provider = data.get('provider')
+    sim.status = data.get('status')
     sim.package = data.get('package')
     sim.zalo_status = data.get('zalo_status')
     sim.tele_status = data.get('tele_status')
