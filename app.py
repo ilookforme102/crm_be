@@ -1367,7 +1367,7 @@ def add_sim():
         sim_code = sim_code,
         number = data.get('number'),
         provider = data.get('provider'),
-        status = data.gget('status'),
+        status = data.get('status'),
         package = data.get('package'),
         zalo_status = data.get('zalo_status'),
         tele_status = data.get('tele_status'),
