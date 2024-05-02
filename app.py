@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request, session, make_response,redirect, url_for,Blueprint
 from flask_cors import CORS,cross_origin
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Date,Time,DateTime , and_, func
+from sqlalchemy import Date,Time,DateTime , and_, func, case
 import datetime
 from datetime import datetime, timedelta
 app = Flask(__name__)
@@ -1824,7 +1824,7 @@ def get_customer_per_member():
         ]
 
         return jsonify(data)
-@crm_bp.route('/stats/charts/person')
+@crm_bp.route('/stats/charts/pic_time')
 #SELECT COUNT(`code`),person_in_charge FROM `db_vn168_crm_customer` WHERE `interaction_result` 
 #in ('Khách SEO Nạp Tiền','Khách CRM Nạp Tiền') 
 #AND filled_date <= '2024-04-30' 
@@ -1853,11 +1853,77 @@ def get_depositor_each():
     query_data = [
         {
             'pic': result.person_in_charge,
-            'amount':result.Depositor
+            'count':result.Depositor
         } for result in results
     ]
     return jsonify(query_data)
-    
+# SELECT 
+# (CASE WHEN category = 'SEO Data' THEN 'SEO Data' ELSE 'CRM Data' END) 
+# AS new_categor,interaction_result,COUNT(interaction_result) 
+# FROM `db_vn168_crm_customer` 
+# GROUP BY new_categor,interaction_result;
+# The difference of behavious of customer from SEO and CRM data based on interaction result
+
+
+@crm_bp.route('/stats/charts/category_result')
+def active_customer_for_category():
+    data = request.args
+    start_date = data.get('start_date')
+    end_date = data.get('end_date')
+    query = Customers.query
+    results = query.with_entities(
+        case(
+            (Customers.category == 'SEO Data', 'SEO Data')
+        , else_='CRM Data').label('new_category'),
+        Customers.interaction_result,
+        func.count(Customers.interaction_result).label('result_count')
+    ).filter(and_(
+        Customers.filled_date >= start_date,
+        Customers.filled_date <= end_date
+                  )).group_by(
+        'new_category',
+        Customers.interaction_result
+    ).all()
+
+    query_data = [
+        {
+            'new_category': result.new_category,
+            'interaction_result': result.interaction_result,
+            'customer_count': result.result_count
+        } for result in results
+    ]
+    return query_data
+###SELECT `person_in_charge`, interaction_result , COUNT(code) as result_count 
+#FROM `db_vn168_crm_customer` 
+#GROUP BY person_in_charge,interaction_result;
+
+@crm_bp.route('/stats/charts/customer_pic_result')
+def get_customer_pic_result():
+    data = request.args
+    start_date = data.get('start_date')
+    end_date = data.get('end_date')
+    query = Customers.query
+    results = query.with_entities(
+        Customers.person_in_charge,
+        Customers.interaction_result,
+        func.count(Customers.code).label('result_count')
+    ).filter(
+        and_(
+            Customers.filled_date <= end_date,
+            Customers.filled_date >= start_date
+        )
+    ).group_by(
+        Customers.person_in_charge,
+        Customers.interaction_result
+    ).all()
+    query_data = [
+        {
+            'pic': result.person_in_charge,
+            'interaction_result': result.interaction_result,
+            'customer_count': result.result_count
+        } for result in results
+    ]
+    return jsonify(query_data)
 #########################################################################################################
 ###################################User Management#######################################################
 #########################################################################################################
@@ -1902,7 +1968,7 @@ def add_user():
         db.session.add(new_user)
         try:
             db.session.commit()
-            return "User added successfully!"
+            return jsonify({'message':"User added successfully!"})
         except Exception as e:
             db.session.rollback()  # Roll back the transaction if an error occurs
             return str(e)
