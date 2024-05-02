@@ -1,269 +1,272 @@
-from flask import Flask, jsonify, request, session, make_response,redirect, url_for,Blueprint
+from flask import Flask, jsonify, request, session, make_response,redirect, url_for, Blueprint
 from crm_dashboard import crm_stats
 from flask_cors import CORS,cross_origin
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Date,Time,DateTime , and_, func, case
 import datetime
 from datetime import datetime, timedelta
-app = Flask(__name__)
-app.secret_key = 'f33924fea4dd7123a0daa9d2a7213679'
-# Replace the following values with your database connection details
-db_username = 'crm'
-db_password = 'LSciYCtCK7tZXAxL'
-db_host = '23.226.8.83'
-db_database = 'crm'
-db_port = 3306
-app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{db_username}:{db_password}@{db_host}/{db_database}'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+from db_schema import User, BO, Category,Contact_Note,Call_Note,Zalo_Note,Tele_Note,SMS_Note,Social_Note,Interaction_Content,Interaction_Result,Customers,Customer_Record_History,Tool_Category,Sim_Mgt,IP_Mgt,Phone_Mgt,Email_Mgt,Zalo_Mgt,Tele_Mgt,Social_Mgt,Session_Mgt
+from db_schema import app, db 
+CORS(app, supports_credentials = True)
+# app = Flask(__name__)
+# app.secret_key = 'f33924fea4dd7123a0daa9d2a7213679'
+# # Replace the following values with your database connection details
+# db_username = 'crm'
+# db_password = 'LSciYCtCK7tZXAxL'
+# db_host = '23.226.8.83'
+# db_database = 'crm'
+# db_port = 3306
+# app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{db_username}:{db_password}@{db_host}/{db_database}'
+# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# # app.config['CORS_HEADERS'] = 'Content-Type'
+# app.config['SESSION_COOKIE_SAMESITE'] = 'None'  # None, Lax, or Strict
+# app.config['SESSION_COOKIE_SECURE'] = True  # Should be True if using SameSite=None
+# app.config['SESSION_COOKIE_HTTPONLY'] = True
 # app.config['CORS_HEADERS'] = 'Content-Type'
-app.config['SESSION_COOKIE_SAMESITE'] = 'None'  # None, Lax, or Strict
-app.config['SESSION_COOKIE_SECURE'] = True  # Should be True if using SameSite=None
-app.config['SESSION_COOKIE_HTTPONLY'] = True
-app.config['CORS_HEADERS'] = 'Content-Type'
-# app.config['PERMANENT_SESSION_LIFETIME'] =3600*8
+# # app.config['PERMANENT_SESSION_LIFETIME'] =3600*8
 
-CORS(app, supports_credentials = True)#resources={r"/*": {"origins": "*"}},
+# CORS(app, supports_credentials = True)#resources={r"/*": {"origins": "*"}},
 
 
-db = SQLAlchemy(app)
-###########SQL Query#############
-# INSERT INTO `db_vn168_user` (`username`, `password`, `company_id`, `role`, `team`) VALUES ('shang168', 'admin', 'f0732', 'admin', 'IT');
-class User(db.Model):
-    __tablename__ = 'db_vn168_user'
-    username =  db.Column(db.String(255), primary_key = True, nullable = False)
-    password = db.Column(db.String(255), nullable = False)
-    company_name = db.Column(db.String(255), nullable = False)
-    company_id = db.Column(db.String(255), nullable = False, unique = True)
-    role = db.Column(db.String(255), nullable = False)
-    team = db.Column(db.String(255), nullable = False)
-    def __repr__(self):
-        return f'<User {self.username}>'
-###################################################################################
-#######################Data model for dropdown list display as an option for data fill-in
-#List BO code    
-class BO(db.Model):
-    __tablename__ = 'db_vn168_crm_bo'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    bo_code = db.Column(db.String(255), unique = True, nullable = False)
-    def __repr__(self):
-        return self.bo_code
-#List category
-class Category(db.Model):
-    __tablename__ = 'db_vn168_crm_category'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    category = db.Column(db.String(255), unique = True, nullable = False)
-    def __repr__(self):
-        return self.category
-#List contact node
-class Contact_Note(db.Model):
-    __tablename__ = 'db_vn168_crm_contact_note'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    contact_note = db.Column(db.String(255), unique = True, nullable = False)
-    def __repr__(self):
-        return self.note
-#List of call note
-class Call_Note(db.Model):
-    __tablename__ = 'db_vn168_crm_call_note'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    call_note = db.Column(db.String(255), primary_key = True,unique = True, nullable = False)
-    def __repr__(self):
-        return self.call_note
-#########
-class Zalo_Note(db.Model):
-    __tablename__ = 'db_vn168_crm_zalo_note'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    zalo_note= db.Column(db.String(255), unique = True, nullable = False)
-    def __repr__(self):
-        return self.zalo_note
-class Tele_Note(db.Model):
-    __tablename__ = 'db_vn168_crm_tele_note'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    tele_note= db.Column(db.String(255),unique = True, nullable = False)
-    def __repr__(self):
-        return self.tele_note
-class SMS_Note(db.Model):
-    __tablename__ = 'db_vn168_crm_sms_note'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    sms_note= db.Column(db.String(255),unique = True, nullable = False)
-    def __repr__(self):
-        return self.sms_note
-class Social_Note(db.Model):
-    __tablename__ = 'db_vn168_crm_social_note'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    social_note= db.Column(db.String(255), unique = True, nullable = False)
-    def __repr__(self):
-        return self.social_note
-class Interaction_Content(db.Model): #Something called Nội dung tương tác
-    __tablename__ = 'db_vn168_interaction_content'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    content= db.Column(db.String(255),unique = True, nullable = False)
-    def __repr__(self):
-        return self.interaction_content
-class Interaction_Result(db.Model): #Something called Nội dung tương tác
-    __tablename__ = 'db_vn168_crm_interaction_result'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    result= db.Column(db.String(255),unique = True, nullable = False)
-    def __repr__(self):
-        return self.result 
-class Customers(db.Model):
-    __tablename__ = 'db_vn168_crm_customer'
-    code = db.Column(db.String(255), primary_key = True, unique = True, nullable = False)
-    username = db.Column(db.String(255), nullable = False)
-    category = db.Column(db.String(255), nullable = False)
-    bo_code = db.Column(db.String(255), nullable = False)
-    contact_note = db.Column(db.String(255), nullable = False)
-    call_note = db.Column(db.String(255), nullable = False)
-    zalo_note = db.Column(db.String(255), nullable = False)
-    tele_note = db.Column(db.String(255),nullable = False)
-    sms_note = db.Column(db.String(255),nullable = False)
-    social_note = db.Column(db.String(255),nullable = False)
-    interaction_content = db.Column(db.String(255), nullable = False)
-    interaction_result = db.Column(db.String(255), nullable = False)
-    person_in_charge = db.Column(db.String(255), nullable = False)
-    filled_date = db.Column(DateTime, nullable = False)
-    assistant = db.Column(db.String(255))
-    creator =  db.Column(db.String(255), nullable = False)
-    def __repr__(self):
-        return self.code
-class Customer_Record_History(db.Model):
-    __tablename__ = 'db_vn168_crm_record_history'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    filled_date = db.Column(DateTime, nullable = False)
-    created_at = db.Column(DateTime,  nullable=False)
-    code = db.Column(db.String(255),  nullable = False)
-    username = db.Column(db.String(255), nullable = False)
-    category = db.Column(db.String(255), nullable = False)
-    bo_code = db.Column(db.String(255), nullable = False)
-    contact_note = db.Column(db.String(255), nullable = False)
-    call_note = db.Column(db.String(255), nullable = False)
-    zalo_note = db.Column(db.String(255), nullable = False)
-    tele_note = db.Column(db.String(255),nullable = False)
-    sms_note = db.Column(db.String(255),nullable = False)
-    social_note = db.Column(db.String(255),nullable = False)
-    interaction_content = db.Column(db.String(255), nullable = False)
-    interaction_result = db.Column(db.String(255), nullable = False)
-    person_in_charge = db.Column(db.String(255), nullable = False)
-    assistant = db.Column(db.String(255))
-    creator = db.Column(db.String(255),nullable = False)
-    editor =  db.Column(db.String(255), nullable = False)
-    def __repr__(self):
-        return self.created_at
-class Tool_Category(db.Model):
-    __tablename__ = 'db_vn168_crm_tool_category'
-    id = db.Column(db.Integer, primary_key=True, unique = True, autoincrement=True)
-    tool_category = db.Column(db.String(255), unique = True, nullable = False)
-    type = db.Column(db.String(255),  nullable=False)
-########################################################################
-################Devices Management######################################
-#############################################################################SIM########
-class Sim_Mgt(db.Model):
-    __tablename__ = 'db_vn168_crm_sim_mgt'
-    sim_code = db.Column(db.String(255), primary_key = True, unique = True, nullable = False)
-    number = db.Column(db.String(255), nullable = False)
-    provider = db.Column(db.String(255))
-    status = db.Column(db.String(255)) #Trạng thái
-    package = db.Column(db.String(255))
-    zalo_status = db.Column(db.String(255))
-    tele_status = db.Column(db.String(255))
-    social_status = db.Column(db.String(255))
-    sms_status = db.Column(db.String(255))
-    storage_location = db.Column(db.String(255))
-    sim_note = db.Column(db.String(255))
-    def __repr__(self):
-        return self.sim_code
-#####IP###############
-class IP_Mgt(db.Model):
-    __tablename__ = 'db_vn168_crm_ip_mgt'
-    ip_code = db.Column(db.String(255), primary_key = True, unique = True, nullable = False)
-    ip_info = db.Column(db.String(255), nullable = False)
-    expired_date = db.Column(Date)
-    country = db.Column(db.String(255))
-    provider = db.Column(db.String(255))
-    status = db.Column(db.String(255))
-    day_until_expiration = db.Column(db.String(255))
-    zalo_note = db.Column(db.String(255))
-    ip_note = db.Column(db.String(255))
-#######Phone##################
-class Phone_Mgt(db.Model):
-    __tablename__ = 'db_vn168_crm_phone_mgt'
-    device_code = db.Column(db.String(255), primary_key = True, unique = True, nullable = False)
-    num_zalo_acc_created = db.Column(db.String(255))
-    num_zalo_acc_active = db.Column(db.String(255))
-    num_zalo_acc_active = db.Column(db.String(255))
-    online = db.Column(db.String(255))
-    online_cls = db.Column(db.String(255))
-    online_nkb = db.Column(db.String(255))
-    online_agency = db.Column(db.String(255))
-    num_sim = db.Column(db.Integer)
-    number1 = db.Column(db.String(255))
-    number2 = db.Column(db.String(255))
-    phone_note = db.Column(db.String(255))
-######Email###################
-class Email_Mgt(db.Model):
-    __tablename__ = 'db_vn168_crm_email_mgt'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    email = db.Column(db.String(255), unique = True, nullable = False)
-    email_status = db.Column(db.String(255), nullable = False)
-    email_password = db.Column(db.String(255), nullable = False)
-    def __repr__(self):
-        return self.email    
-#######Data model for all contact method including zalo, tele, faceboook , tiktok
-######Tool######################################################################
-###Zalo
-class Zalo_Mgt(db.Model):
-    __tablename__ = 'db_vn168_crm_zalo_mgt'
-    code = db.Column(db.String(255), primary_key = True, unique = True, nullable = False)
-    tool_category = db.Column(db.String(255))
-    person_in_charge = db.Column(db.String(255))
-    zalo_note = db.Column(db.String(255))
-    username = db.Column(db.String(255))
-    password = db.Column(db.String(255))
-    phone_number = db.Column(db.String(255))
-    email = db.Column(db.String(255))
-    ip_address = db.Column(db.String(255))
-    note = db.Column(db.String(255))
-###Tele
-class Tele_Mgt(db.Model):
-    __tablename__ = 'db_vn168_crm_tele_mgt'
-    code = db.Column(db.String(255), primary_key = True, unique = True, nullable = False)
-    tool_category = db.Column(db.String(255))
-    person_in_charge = db.Column(db.String(255))
-    tele_note = db.Column(db.String(255))
-    username = db.Column(db.String(255))
-    password = db.Column(db.String(255))
-    phone_number = db.Column(db.String(255))
-    email = db.Column(db.String(255))
-    ip_address = db.Column(db.String(255))
-    note = db.Column(db.String(255))
-###Facebook
-class Social_Mgt(db.Model):
-    __tablename__ = 'db_vn168_crm_social_mgt'
-    code = db.Column(db.String(255), primary_key = True, unique = True, nullable = False)
-    tool_category = db.Column(db.String(255))
-    person_in_charge = db.Column(db.String(255))
-    social_note = db.Column(db.String(255))
-    username = db.Column(db.String(255))
-    password = db.Column(db.String(255))
-    phone_number = db.Column(db.String(255))
-    email = db.Column(db.String(255))
-    ip_address = db.Column(db.String(255))
-    note = db.Column(db.String(255))
+# db = SQLAlchemy(app)
+# ###########SQL Query#############
+# # INSERT INTO `db_vn168_user` (`username`, `password`, `company_id`, `role`, `team`) VALUES ('shang168', 'admin', 'f0732', 'admin', 'IT');
+# class User(db.Model):
+#     __tablename__ = 'db_vn168_user'
+#     username =  db.Column(db.String(255), primary_key = True, nullable = False)
+#     password = db.Column(db.String(255), nullable = False)
+#     company_name = db.Column(db.String(255), nullable = False)
+#     company_id = db.Column(db.String(255), nullable = False, unique = True)
+#     role = db.Column(db.String(255), nullable = False)
+#     team = db.Column(db.String(255), nullable = False)
+#     def __repr__(self):
+#         return f'<User {self.username}>'
+# ###################################################################################
+# #######################Data model for dropdown list display as an option for data fill-in
+# #List BO code    
+# class BO(db.Model):
+#     __tablename__ = 'db_vn168_crm_bo'
+#     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+#     bo_code = db.Column(db.String(255), unique = True, nullable = False)
+#     def __repr__(self):
+#         return self.bo_code
+# #List category
+# class Category(db.Model):
+#     __tablename__ = 'db_vn168_crm_category'
+#     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+#     category = db.Column(db.String(255), unique = True, nullable = False)
+#     def __repr__(self):
+#         return self.category
+# #List contact node
+# class Contact_Note(db.Model):
+#     __tablename__ = 'db_vn168_crm_contact_note'
+#     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+#     contact_note = db.Column(db.String(255), unique = True, nullable = False)
+#     def __repr__(self):
+#         return self.note
+# #List of call note
+# class Call_Note(db.Model):
+#     __tablename__ = 'db_vn168_crm_call_note'
+#     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+#     call_note = db.Column(db.String(255), primary_key = True,unique = True, nullable = False)
+#     def __repr__(self):
+#         return self.call_note
+# #########
+# class Zalo_Note(db.Model):
+#     __tablename__ = 'db_vn168_crm_zalo_note'
+#     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+#     zalo_note= db.Column(db.String(255), unique = True, nullable = False)
+#     def __repr__(self):
+#         return self.zalo_note
+# class Tele_Note(db.Model):
+#     __tablename__ = 'db_vn168_crm_tele_note'
+#     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+#     tele_note= db.Column(db.String(255),unique = True, nullable = False)
+#     def __repr__(self):
+#         return self.tele_note
+# class SMS_Note(db.Model):
+#     __tablename__ = 'db_vn168_crm_sms_note'
+#     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+#     sms_note= db.Column(db.String(255),unique = True, nullable = False)
+#     def __repr__(self):
+#         return self.sms_note
+# class Social_Note(db.Model):
+#     __tablename__ = 'db_vn168_crm_social_note'
+#     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+#     social_note= db.Column(db.String(255), unique = True, nullable = False)
+#     def __repr__(self):
+#         return self.social_note
+# class Interaction_Content(db.Model): #Something called Nội dung tương tác
+#     __tablename__ = 'db_vn168_interaction_content'
+#     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+#     content= db.Column(db.String(255),unique = True, nullable = False)
+#     def __repr__(self):
+#         return self.interaction_content
+# class Interaction_Result(db.Model): #Something called Nội dung tương tác
+#     __tablename__ = 'db_vn168_crm_interaction_result'
+#     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+#     result= db.Column(db.String(255),unique = True, nullable = False)
+#     def __repr__(self):
+#         return self.result 
+# class Customers(db.Model):
+#     __tablename__ = 'db_vn168_crm_customer'
+#     code = db.Column(db.String(255), primary_key = True, unique = True, nullable = False)
+#     username = db.Column(db.String(255), nullable = False)
+#     category = db.Column(db.String(255), nullable = False)
+#     bo_code = db.Column(db.String(255), nullable = False)
+#     contact_note = db.Column(db.String(255), nullable = False)
+#     call_note = db.Column(db.String(255), nullable = False)
+#     zalo_note = db.Column(db.String(255), nullable = False)
+#     tele_note = db.Column(db.String(255),nullable = False)
+#     sms_note = db.Column(db.String(255),nullable = False)
+#     social_note = db.Column(db.String(255),nullable = False)
+#     interaction_content = db.Column(db.String(255), nullable = False)
+#     interaction_result = db.Column(db.String(255), nullable = False)
+#     person_in_charge = db.Column(db.String(255), nullable = False)
+#     filled_date = db.Column(DateTime, nullable = False)
+#     assistant = db.Column(db.String(255))
+#     creator =  db.Column(db.String(255), nullable = False)
+#     def __repr__(self):
+#         return self.code
+# class Customer_Record_History(db.Model):
+#     __tablename__ = 'db_vn168_crm_record_history'
+#     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+#     filled_date = db.Column(DateTime, nullable = False)
+#     created_at = db.Column(DateTime,  nullable=False)
+#     code = db.Column(db.String(255),  nullable = False)
+#     username = db.Column(db.String(255), nullable = False)
+#     category = db.Column(db.String(255), nullable = False)
+#     bo_code = db.Column(db.String(255), nullable = False)
+#     contact_note = db.Column(db.String(255), nullable = False)
+#     call_note = db.Column(db.String(255), nullable = False)
+#     zalo_note = db.Column(db.String(255), nullable = False)
+#     tele_note = db.Column(db.String(255),nullable = False)
+#     sms_note = db.Column(db.String(255),nullable = False)
+#     social_note = db.Column(db.String(255),nullable = False)
+#     interaction_content = db.Column(db.String(255), nullable = False)
+#     interaction_result = db.Column(db.String(255), nullable = False)
+#     person_in_charge = db.Column(db.String(255), nullable = False)
+#     assistant = db.Column(db.String(255))
+#     creator = db.Column(db.String(255),nullable = False)
+#     editor =  db.Column(db.String(255), nullable = False)
+#     def __repr__(self):
+#         return self.created_at
+# class Tool_Category(db.Model):
+#     __tablename__ = 'db_vn168_crm_tool_category'
+#     id = db.Column(db.Integer, primary_key=True, unique = True, autoincrement=True)
+#     tool_category = db.Column(db.String(255), unique = True, nullable = False)
+#     type = db.Column(db.String(255),  nullable=False)
+# ########################################################################
+# ################Devices Management######################################
+# #############################################################################SIM########
+# class Sim_Mgt(db.Model):
+#     __tablename__ = 'db_vn168_crm_sim_mgt'
+#     sim_code = db.Column(db.String(255), primary_key = True, unique = True, nullable = False)
+#     number = db.Column(db.String(255), nullable = False)
+#     provider = db.Column(db.String(255))
+#     status = db.Column(db.String(255)) #Trạng thái
+#     package = db.Column(db.String(255))
+#     zalo_status = db.Column(db.String(255))
+#     tele_status = db.Column(db.String(255))
+#     social_status = db.Column(db.String(255))
+#     sms_status = db.Column(db.String(255))
+#     storage_location = db.Column(db.String(255))
+#     sim_note = db.Column(db.String(255))
+#     def __repr__(self):
+#         return self.sim_code
+# #####IP###############
+# class IP_Mgt(db.Model):
+#     __tablename__ = 'db_vn168_crm_ip_mgt'
+#     ip_code = db.Column(db.String(255), primary_key = True, unique = True, nullable = False)
+#     ip_info = db.Column(db.String(255), nullable = False)
+#     expired_date = db.Column(Date)
+#     country = db.Column(db.String(255))
+#     provider = db.Column(db.String(255))
+#     status = db.Column(db.String(255))
+#     day_until_expiration = db.Column(db.String(255))
+#     zalo_note = db.Column(db.String(255))
+#     ip_note = db.Column(db.String(255))
+# #######Phone##################
+# class Phone_Mgt(db.Model):
+#     __tablename__ = 'db_vn168_crm_phone_mgt'
+#     device_code = db.Column(db.String(255), primary_key = True, unique = True, nullable = False)
+#     num_zalo_acc_created = db.Column(db.String(255))
+#     num_zalo_acc_active = db.Column(db.String(255))
+#     num_zalo_acc_active = db.Column(db.String(255))
+#     online = db.Column(db.String(255))
+#     online_cls = db.Column(db.String(255))
+#     online_nkb = db.Column(db.String(255))
+#     online_agency = db.Column(db.String(255))
+#     num_sim = db.Column(db.Integer)
+#     number1 = db.Column(db.String(255))
+#     number2 = db.Column(db.String(255))
+#     phone_note = db.Column(db.String(255))
+# ######Email###################
+# class Email_Mgt(db.Model):
+#     __tablename__ = 'db_vn168_crm_email_mgt'
+#     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+#     email = db.Column(db.String(255), unique = True, nullable = False)
+#     email_status = db.Column(db.String(255), nullable = False)
+#     email_password = db.Column(db.String(255), nullable = False)
+#     def __repr__(self):
+#         return self.email    
+# #######Data model for all contact method including zalo, tele, faceboook , tiktok
+# ######Tool######################################################################
+# ###Zalo
+# class Zalo_Mgt(db.Model):
+#     __tablename__ = 'db_vn168_crm_zalo_mgt'
+#     code = db.Column(db.String(255), primary_key = True, unique = True, nullable = False)
+#     tool_category = db.Column(db.String(255))
+#     person_in_charge = db.Column(db.String(255))
+#     zalo_note = db.Column(db.String(255))
+#     username = db.Column(db.String(255))
+#     password = db.Column(db.String(255))
+#     phone_number = db.Column(db.String(255))
+#     email = db.Column(db.String(255))
+#     ip_address = db.Column(db.String(255))
+#     note = db.Column(db.String(255))
+# ###Tele
+# class Tele_Mgt(db.Model):
+#     __tablename__ = 'db_vn168_crm_tele_mgt'
+#     code = db.Column(db.String(255), primary_key = True, unique = True, nullable = False)
+#     tool_category = db.Column(db.String(255))
+#     person_in_charge = db.Column(db.String(255))
+#     tele_note = db.Column(db.String(255))
+#     username = db.Column(db.String(255))
+#     password = db.Column(db.String(255))
+#     phone_number = db.Column(db.String(255))
+#     email = db.Column(db.String(255))
+#     ip_address = db.Column(db.String(255))
+#     note = db.Column(db.String(255))
+# ###Facebook
+# class Social_Mgt(db.Model):
+#     __tablename__ = 'db_vn168_crm_social_mgt'
+#     code = db.Column(db.String(255), primary_key = True, unique = True, nullable = False)
+#     tool_category = db.Column(db.String(255))
+#     person_in_charge = db.Column(db.String(255))
+#     social_note = db.Column(db.String(255))
+#     username = db.Column(db.String(255))
+#     password = db.Column(db.String(255))
+#     phone_number = db.Column(db.String(255))
+#     email = db.Column(db.String(255))
+#     ip_address = db.Column(db.String(255))
+#     note = db.Column(db.String(255))
 
-####Employee session management table#########################
-class Session_Mgt(db.Model):
-    __tablename__ = 'db_vn168_crm_session_mgt'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    username = db.Column(db.String(255))
-    login_ip = db.Column(db.String(255),nullable = True)
-    # ip_addr ==
-    checkin_time = db.Column(DateTime , nullable = False)
-    checkout_time = db.Column(db.String(255), nullable = False)
+# ####Employee session management table#########################
+# class Session_Mgt(db.Model):
+#     __tablename__ = 'db_vn168_crm_session_mgt'
+#     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+#     username = db.Column(db.String(255))
+#     login_ip = db.Column(db.String(255),nullable = True)
+#     # ip_addr ==
+#     checkin_time = db.Column(DateTime , nullable = False)
+#     checkout_time = db.Column(db.String(255), nullable = False)
 #####Using Flask Blueprints to create hierarchical API endpoints#####
-#Declare blueprint for CRM team
+# Declare blueprint for CRM team
 crm_bp = Blueprint('crm_bp', __name__, url_prefix='/crm')
-social_bp = Blueprint('social_bp', __name__, url_prefix='/social')
-dev_bp = Blueprint('dev_bp', __name__, url_prefix='/dev')
-seo_bp = Blueprint('seo_bp', __name__, url_prefix='/seo')
+# social_bp = Blueprint('social_bp', __name__, url_prefix='/social')
+# dev_bp = Blueprint('dev_bp', __name__, url_prefix='/dev')
+# seo_bp = Blueprint('seo_bp', __name__, url_prefix='/seo')
 ###############################Preset Function#######################
 def get_ip_addr():
     header = request.headers
@@ -1710,221 +1713,221 @@ def remove_email(email):
         return jsonify({'message': 'Email removed successfully'}),200
     else:
         return jsonify({'error':'Email not found'}),404
-######################################################################################################
-########################################Reports#######################################################
-######################################################################################################
-#Total number of contacted customer (number of rows in the database)
-#Total number of customers who have deposited into their betting account (depositors) : Number
-#Conversion rate (depositos/customers) of SEO data and Non-SEO data : Number
-@crm_bp.route('/stats/metrics/key_metrics', methods = ['POST','OPTIONS'])
-def key_metrics():
-    data = request.form
-    start_date = data.get('start_date')
-    end_date = data.get('end_date')
-    query = Customers.query
-    query = query.filter(and_(
-        Customers.filled_date >= datetime.strptime(start_date, '%Y-%m-%d'),
-        Customers.filled_date <= datetime.strptime(end_date, '%Y-%m-%d')
-    ))
-    customers = query.count()
-    seo_customers = query.filter(Customers.category == 'SEO Data').count()
-    crm_customers  = query.filter(Customers.category != 'SEO Data').count()
-    seo_depositors = query.filter(Customers.interaction_result == ['Khách SEO Nạp Tiền']).count()
-    crm_depositors = query.filter(Customers.interaction_result == ['Khách CRM Nạp Tiền']).count()
-    depositors = query.filter(Customers.interaction_result.in_(['Khách SEO Nạp Tiền','Khách CRM Nạp Tiền'])).count()
-    conversion_rate =  100*depositors/customers
-    seo_conversion_rate =  100*seo_depositors/seo_customers
-    crm_conversion_rate =  100*crm_depositors/crm_customers
-    # return {
-    #         'customers':customers,
-    #         'conversion_rate':conversion_rate,
-    #         'customers': seo_customers,
-    #         'conversion_rate':seo_conversion_rate,
+# ######################################################################################################
+# ########################################Reports#######################################################
+# ######################################################################################################
+# #Total number of contacted customer (number of rows in the database)
+# #Total number of customers who have deposited into their betting account (depositors) : Number
+# #Conversion rate (depositos/customers) of SEO data and Non-SEO data : Number
+# @crm_bp.route('/stats/metrics/key_metrics', methods = ['POST','OPTIONS'])
+# def key_metrics():
+#     data = request.form
+#     start_date = data.get('start_date')
+#     end_date = data.get('end_date')
+#     query = Customers.query
+#     query = query.filter(and_(
+#         Customers.filled_date >= datetime.strptime(start_date, '%Y-%m-%d'),
+#         Customers.filled_date <= datetime.strptime(end_date, '%Y-%m-%d')
+#     ))
+#     customers = query.count()
+#     seo_customers = query.filter(Customers.category == 'SEO Data').count()
+#     crm_customers  = query.filter(Customers.category != 'SEO Data').count()
+#     seo_depositors = query.filter(Customers.interaction_result == ['Khách SEO Nạp Tiền']).count()
+#     crm_depositors = query.filter(Customers.interaction_result == ['Khách CRM Nạp Tiền']).count()
+#     depositors = query.filter(Customers.interaction_result.in_(['Khách SEO Nạp Tiền','Khách CRM Nạp Tiền'])).count()
+#     conversion_rate =  100*depositors/customers
+#     seo_conversion_rate =  100*seo_depositors/seo_customers
+#     crm_conversion_rate =  100*crm_depositors/crm_customers
+#     # return {
+#     #         'customers':customers,
+#     #         'conversion_rate':conversion_rate,
+#     #         'customers': seo_customers,
+#     #         'conversion_rate':seo_conversion_rate,
 
-    #     }
-    return jsonify({
-        'vn168':{
-            'customers':customers,
-            'depositor':depositors,
-            'conversion_rate':conversion_rate
-        },
-        'seo':{
-            'customers': seo_customers,
-            'depositor':seo_depositors,
-            'conversion_rate':seo_conversion_rate
-        },
-        'crm': {
-            'customers': crm_customers,
-            'depositor':crm_depositors,
-            'conversion_rate': crm_conversion_rate
-        }
-    })
-#crm/stats/charts
-#Time serrie data for total customers 
-#Heatmap data for category data and its result
-#Time serries data for total number of customers for each CRM team member
-#Detail of customers by result category for each CRM team 
-#Total depositors for each CRM team member
-#Time Serrie data for total depositors comparison between CRM customers and SEO customers
-@crm_bp.route('/stats/charts/customers_per_member')
-def get_customer_per_member():
-    data = request.args
-    start_date = data.get('start_date')
-    end_date = data.get('end_date')
-    pic = data.get('person_in_charge')
-    query = Customers.query
-    results1 = query.with_entities(
-        func.date(Customers.filled_date).label('date'),
-        func.count(func.date(Customers.filled_date)).label('customer_by_date'),
-        Customers.person_in_charge,
-    ).group_by(
-        func.date(Customers.filled_date),
-        Customers.person_in_charge,
-    )
-    if pic: # and Customers.query.filter(Customers.person_in_charge == pic):
-        if pic != 'all':
-            results  = results1.filter(and_(
-                Customers.person_in_charge == pic,
-                Customers.filled_date >= start_date,
-                Customers.filled_date <= end_date
-            )).all()
-            data = [
-                {
-                    'date': result.date.isoformat() if result.date else None,
-                    'customer_by_date': result.customer_by_date,
-                    'person_in_charge': result.person_in_charge,
-                } for result in results
-            ]
+#     #     }
+#     return jsonify({
+#         'vn168':{
+#             'customers':customers,
+#             'depositor':depositors,
+#             'conversion_rate':conversion_rate
+#         },
+#         'seo':{
+#             'customers': seo_customers,
+#             'depositor':seo_depositors,
+#             'conversion_rate':seo_conversion_rate
+#         },
+#         'crm': {
+#             'customers': crm_customers,
+#             'depositor':crm_depositors,
+#             'conversion_rate': crm_conversion_rate
+#         }
+#     })
+# #crm/stats/charts
+# #Time serrie data for total customers 
+# #Heatmap data for category data and its result
+# #Time serries data for total number of customers for each CRM team member
+# #Detail of customers by result category for each CRM team 
+# #Total depositors for each CRM team member
+# #Time Serrie data for total depositors comparison between CRM customers and SEO customers
+# @crm_bp.route('/stats/charts/customers_per_member')
+# def get_customer_per_member():
+#     data = request.args
+#     start_date = data.get('start_date')
+#     end_date = data.get('end_date')
+#     pic = data.get('person_in_charge')
+#     query = Customers.query
+#     results1 = query.with_entities(
+#         func.date(Customers.filled_date).label('date'),
+#         func.count(func.date(Customers.filled_date)).label('customer_by_date'),
+#         Customers.person_in_charge,
+#     ).group_by(
+#         func.date(Customers.filled_date),
+#         Customers.person_in_charge,
+#     )
+#     if pic: # and Customers.query.filter(Customers.person_in_charge == pic):
+#         if pic != 'all':
+#             results  = results1.filter(and_(
+#                 Customers.person_in_charge == pic,
+#                 Customers.filled_date >= start_date,
+#                 Customers.filled_date <= end_date
+#             )).all()
+#             data = [
+#                 {
+#                     'date': result.date.isoformat() if result.date else None,
+#                     'customer_by_date': result.customer_by_date,
+#                     'person_in_charge': result.person_in_charge,
+#                 } for result in results
+#             ]
 
-            return jsonify(data)
-        if pic == 'all':
-            results  = results1.filter(and_(
-                Customers.filled_date >= start_date,
-                Customers.filled_date <= end_date
-            )).all()
-            data = [
-                {
-                    'date': result.date.isoformat() if result.date else None,
-                    'customer_by_date': result.customer_by_date,
-                    'person_in_charge': result.person_in_charge,
-                } for result in results
-            ]
+#             return jsonify(data)
+#         if pic == 'all':
+#             results  = results1.filter(and_(
+#                 Customers.filled_date >= start_date,
+#                 Customers.filled_date <= end_date
+#             )).all()
+#             data = [
+#                 {
+#                     'date': result.date.isoformat() if result.date else None,
+#                     'customer_by_date': result.customer_by_date,
+#                     'person_in_charge': result.person_in_charge,
+#                 } for result in results
+#             ]
 
-            return jsonify(data)
-    else:
-        results  = results1.filter(and_(
-            Customers.filled_date >= start_date,
-            Customers.filled_date <= end_date
-        )).all()
-        data = [
-            {
-                'date': result.date.isoformat() if result.date else None,
-                'customer_by_date': result.customer_by_date,
-                'person_in_charge': result.person_in_charge,
-            } for result in results
-        ]
+#             return jsonify(data)
+#     else:
+#         results  = results1.filter(and_(
+#             Customers.filled_date >= start_date,
+#             Customers.filled_date <= end_date
+#         )).all()
+#         data = [
+#             {
+#                 'date': result.date.isoformat() if result.date else None,
+#                 'customer_by_date': result.customer_by_date,
+#                 'person_in_charge': result.person_in_charge,
+#             } for result in results
+#         ]
 
-        return jsonify(data)
-@crm_bp.route('/stats/charts/pic_time')
-#SELECT COUNT(`code`),person_in_charge FROM `db_vn168_crm_customer` WHERE `interaction_result` 
-#in ('Khách SEO Nạp Tiền','Khách CRM Nạp Tiền') 
-#AND filled_date <= '2024-04-30' 
-#AND filled_date >= '2024-04-20' 
-#GROUP BY person_in_charge;
+#         return jsonify(data)
+# @crm_bp.route('/stats/charts/pic_time')
+# #SELECT COUNT(`code`),person_in_charge FROM `db_vn168_crm_customer` WHERE `interaction_result` 
+# #in ('Khách SEO Nạp Tiền','Khách CRM Nạp Tiền') 
+# #AND filled_date <= '2024-04-30' 
+# #AND filled_date >= '2024-04-20' 
+# #GROUP BY person_in_charge;
 
-def get_depositor_each():
-    # #data format :
-    # # {
-    # #"team A": {data for team A},
-    # # "team B": {data for team B}
-    # # }
-    data = request.args
-    start_date = data.get('start_date')
-    end_date = data.get('end_date')
-    query = Customers.query
-    results = query.with_entities(
-        func.count(Customers.code).label('Depositor'),
-        Customers.person_in_charge,
-    ).filter(and_(
-        Customers.interaction_result.in_(['Khách SEO Nạp Tiền','Khách CRM Nạp Tiền']),
-        Customers.filled_date >= start_date,
-        Customers.filled_date <= end_date
-                  )).group_by(
-        Customers.person_in_charge).all()
-    query_data = [
-        {
-            'pic': result.person_in_charge,
-            'count':result.Depositor
-        } for result in results
-    ]
-    return jsonify(query_data)
-# SELECT 
-# (CASE WHEN category = 'SEO Data' THEN 'SEO Data' ELSE 'CRM Data' END) 
-# AS new_categor,interaction_result,COUNT(interaction_result) 
-# FROM `db_vn168_crm_customer` 
-# GROUP BY new_categor,interaction_result;
-# The difference of behavious of customer from SEO and CRM data based on interaction result
+# def get_depositor_each():
+#     # #data format :
+#     # # {
+#     # #"team A": {data for team A},
+#     # # "team B": {data for team B}
+#     # # }
+#     data = request.args
+#     start_date = data.get('start_date')
+#     end_date = data.get('end_date')
+#     query = Customers.query
+#     results = query.with_entities(
+#         func.count(Customers.code).label('Depositor'),
+#         Customers.person_in_charge,
+#     ).filter(and_(
+#         Customers.interaction_result.in_(['Khách SEO Nạp Tiền','Khách CRM Nạp Tiền']),
+#         Customers.filled_date >= start_date,
+#         Customers.filled_date <= end_date
+#                   )).group_by(
+#         Customers.person_in_charge).all()
+#     query_data = [
+#         {
+#             'pic': result.person_in_charge,
+#             'count':result.Depositor
+#         } for result in results
+#     ]
+#     return jsonify(query_data)
+# # SELECT 
+# # (CASE WHEN category = 'SEO Data' THEN 'SEO Data' ELSE 'CRM Data' END) 
+# # AS new_categor,interaction_result,COUNT(interaction_result) 
+# # FROM `db_vn168_crm_customer` 
+# # GROUP BY new_categor,interaction_result;
+# # The difference of behavious of customer from SEO and CRM data based on interaction result
 
 
-@crm_bp.route('/stats/charts/category_result')
-def active_customer_for_category():
-    data = request.args
-    start_date = data.get('start_date')
-    end_date = data.get('end_date')
-    query = Customers.query
-    results = query.with_entities(
-        case(
-            (Customers.category == 'SEO Data', 'SEO Data')
-        , else_='CRM Data').label('new_category'),
-        Customers.interaction_result,
-        func.count(Customers.interaction_result).label('result_count')
-    ).filter(and_(
-        Customers.filled_date >= start_date,
-        Customers.filled_date <= end_date
-                  )).group_by(
-        'new_category',
-        Customers.interaction_result
-    ).all()
+# @crm_bp.route('/stats/charts/category_result')
+# def active_customer_for_category():
+#     data = request.args
+#     start_date = data.get('start_date')
+#     end_date = data.get('end_date')
+#     query = Customers.query
+#     results = query.with_entities(
+#         case(
+#             (Customers.category == 'SEO Data', 'SEO Data')
+#         , else_='CRM Data').label('new_category'),
+#         Customers.interaction_result,
+#         func.count(Customers.interaction_result).label('result_count')
+#     ).filter(and_(
+#         Customers.filled_date >= start_date,
+#         Customers.filled_date <= end_date
+#                   )).group_by(
+#         'new_category',
+#         Customers.interaction_result
+#     ).all()
 
-    query_data = [
-        {
-            'new_category': result.new_category,
-            'interaction_result': result.interaction_result,
-            'customer_count': result.result_count
-        } for result in results
-    ]
-    return query_data
-###SELECT `person_in_charge`, interaction_result , COUNT(code) as result_count 
-#FROM `db_vn168_crm_customer` 
-#GROUP BY person_in_charge,interaction_result;
+#     query_data = [
+#         {
+#             'new_category': result.new_category,
+#             'interaction_result': result.interaction_result,
+#             'customer_count': result.result_count
+#         } for result in results
+#     ]
+#     return query_data
+# ###SELECT `person_in_charge`, interaction_result , COUNT(code) as result_count 
+# #FROM `db_vn168_crm_customer` 
+# #GROUP BY person_in_charge,interaction_result;
 
-@crm_bp.route('/stats/charts/customer_pic_result')
-def get_customer_pic_result():
-    data = request.args
-    start_date = data.get('start_date')
-    end_date = data.get('end_date')
-    query = Customers.query
-    results = query.with_entities(
-        Customers.person_in_charge,
-        Customers.interaction_result,
-        func.count(Customers.code).label('result_count')
-    ).filter(
-        and_(
-            Customers.filled_date <= end_date,
-            Customers.filled_date >= start_date
-        )
-    ).group_by(
-        Customers.person_in_charge,
-        Customers.interaction_result
-    ).all()
-    query_data = [
-        {
-            'pic': result.person_in_charge,
-            'interaction_result': result.interaction_result,
-            'customer_count': result.result_count
-        } for result in results
-    ]
-    return jsonify(query_data)
+# @crm_bp.route('/stats/charts/customer_pic_result')
+# def get_customer_pic_result():
+#     data = request.args
+#     start_date = data.get('start_date')
+#     end_date = data.get('end_date')
+#     query = Customers.query
+#     results = query.with_entities(
+#         Customers.person_in_charge,
+#         Customers.interaction_result,
+#         func.count(Customers.code).label('result_count')
+#     ).filter(
+#         and_(
+#             Customers.filled_date <= end_date,
+#             Customers.filled_date >= start_date
+#         )
+#     ).group_by(
+#         Customers.person_in_charge,
+#         Customers.interaction_result
+#     ).all()
+#     query_data = [
+#         {
+#             'pic': result.person_in_charge,
+#             'interaction_result': result.interaction_result,
+#             'customer_count': result.result_count
+#         } for result in results
+#     ]
+#     return jsonify(query_data)
 #########################################################################################################
 ###################################User Management#######################################################
 #########################################################################################################
@@ -1935,19 +1938,28 @@ def get_customer_pic_result():
 @crm_bp.route('/user')
 def show_users():
     users = User.query.all()
+    # user_data =[]
     # user_data = [{'username':user.username, 'role':user.role,'company_id':user.company_id,'nickname':user.company_name,'team':user.team} for user in users]
-    user_data = [{'username':user.username ,'role': user.role,'company_id': user.company_id,'password': user.password,'company_id': user.company_id,'company_name': user.company_name,'team': user.team} for user in users]
     # user_data = {user.username: {'role': user.role,'company_id': user.company_id,'password': user.password,'company_id': user.company_id,'company_name': user.company_name,'team': user.team} for user in users}
-    try:
-        data = request.args
-        page = int(data.get('page',1))
-        per_page = int(data.get('per_page',10))
-        start_index = (page - 1) * per_page
-        end_index = start_index + per_page
-        paginated_data = user_data[start_index:end_index]
-        return jsonify({'items':paginated_data,'page':page,'per_page':per_page, 'total_items':len(user_data)})
-    except TypeError:
-        return jsonify({'items':user_data,'page':1,'per_page':len(user_data), 'total_items':len(user_data)})
+    if 'role' in session and session['role']=='member':
+        return jsonify({'message': 'lêu lêu'})
+    else:
+        if session['role'] == "admin":
+            user_data = [{'username':user.username ,'role': user.role,'company_id': user.company_id,'password': user.password,'company_id': user.company_id,'company_name': user.company_name,'team': user.team} for user in users]
+        if session['role'] == "leader":
+            user_data = [{'username':user.username ,'role': user.role,'company_id': user.company_id,'password': user.password,'company_id': user.company_id,'company_name': user.company_name,'team': user.team} for user in users if user.role == 'member' or user.username == session['username']]
+
+        try:
+            data = request.args
+            page = int(data.get('page',1))
+            per_page = int(data.get('per_page',10))
+            start_index = (page - 1) * per_page
+            end_index = start_index + per_page
+            paginated_data = user_data[start_index:end_index]
+            return jsonify({'items':paginated_data,'page':page,'per_page':per_page, 'total_items':len(user_data)})
+        except TypeError:
+            return jsonify({'items':user_data,'page':1,'per_page':len(user_data), 'total_items':len(user_data)})
+    
 #Add user, not register
 @crm_bp.route('/user', methods=['POST'])
 def add_user():
@@ -2117,7 +2129,7 @@ def get_user_info():
 
 @crm_bp.route('/test')
 def test():
-    ip = get_ip_addr()
+    ip = session['role']
     return ip
     # headers_dict = [{key: value} for key, value in addr.items()]
     # # ip_addr = headers_dict.get()
@@ -2137,8 +2149,8 @@ def test():
     # return date_str
 app.register_blueprint(crm_stats)
 app.register_blueprint(crm_bp)
-app.register_blueprint(social_bp)
-app.register_blueprint(dev_bp)
-app.register_blueprint(seo_bp)
+# app.register_blueprint(social_bp)
+# app.register_blueprint(dev_bp)
+# app.register_blueprint(seo_bp)
 if __name__ == '__main__':
     app.run(port=5001, debug=True)
