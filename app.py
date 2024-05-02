@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, request, session, make_response,redirect, url_for,Blueprint
+from crm_dashboard import crm_stats
 from flask_cors import CORS,cross_origin
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Date,Time,DateTime , and_, func, case
@@ -273,7 +274,7 @@ def get_ip_addr():
 
     return user_ip
 ##################################################
-##Create aall tables that defined above
+##Create all tables that defined above
 @app.route('/create_tables')
 def create_tables():
     with app.app_context():
@@ -1974,7 +1975,7 @@ def add_user():
             return str(e)
     else:
         return jsonify({"error": "unauthenticated"}),401
-@crm_bp.route('/user/<string:username>', methods = ['POST','OPTIONS'])
+@crm_bp.route('/user/<string:username>', methods = ['PUT','OPTIONS'])
 def edit_user(username):
     if 'role' in session and session['role'] in ['admin','leader']:
         user = User.query.get(username)
@@ -2134,6 +2135,7 @@ def test():
     # return addr
     # date_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     # return date_str
+app.register_blueprint(crm_stats)
 app.register_blueprint(crm_bp)
 app.register_blueprint(social_bp)
 app.register_blueprint(dev_bp)

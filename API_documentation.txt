@@ -80,7 +80,7 @@
 #Total number of contacted customer (number of rows in the database): Number
 #Total number of customers who have deposited into their betting account (depositors) : Number
 #Conversion rate (depositos/customers) of SEO data and Non-SEO data : Number
-
+#requirements: interactive chart
 #crm/stats/charts
 #Time serrie data for total customers 
 #Heatmap data for category data and its result
