@@ -1,5 +1,6 @@
 ######################################################
 ############API Structure#############################
+**[CRM
 ##########Record Management
 #/create_table 
 #/crm/
@@ -49,6 +50,7 @@
 #/crm/device/phone [POST]
 #/crm/device/phone/<string:code>  [PUT]
 #/crm/device/phone/<string:code>  [DELETE]
+#/crm/device/phone_tools 
 #/crm/device/ip
 #/crm/device/ip [POST]
 #/crm/device/ip/<string:code> [PUT]
@@ -88,7 +90,8 @@
 #Detail of customers by result category for each CRM team 
 #Total depositors for each CRM team member
 #Time Serrie data for total depositors comparison between CRM customers and SEO customers
-
+#make calendar-like chart for team member performance
+#Table to calculate total of new registration for each bo for each day
 ##############Member Management####################
 #crm/user
 #crm/user [POST]
@@ -96,7 +99,39 @@
 #crm/user/<string:username> [DELETE]
 ##########################################################
 ##############Session Management##########################
-#crm/user_session
+#crm/
+**CRM]
 ###############IN-and-OUT############
 #/login [GET,POST]
 #/logout
+###############Update############################
+Record Table:
+add phone_number
+crm asked form validation for username: 
+-- No special characters
+-- no space 
+-- lowercase
+assistant will not be shown (empty by default) when add new record but be shown in the edit record 
+No form validation for contact, social, call, tele, zalo note
+20 rows per page by default
+add note, code_origin to the search form
+####################
+Tool Manage:
++ add creation_device to zalo mgt, tele mgt, social mgt
+Zalo mgt : remove email or hide it from interface
+code : auto increment with format 'ZL-240508-01'
+remove zalo,tele, social note (????) 
+add zalo,tele,social status with options 
+modify username in 3 table into  : zalo name, tele name, social name (???)
+no form validation for Tool mgt tables 
+Tele Mgt : add column "type" to Tele Mgt with options 
+Email Mgt: add columns ( recovery email, number verification, person in charge, note)
+#####################
+Devices Mgt
+Phone mgt: remove 3 column num_sim,num_zalo_acc_active,num_zalo_acc_created
+Add new endpoint /phone_tools to get list all phone device and linked tool like social, zalo, tele
+Check new structure of Phone Mgt table (db_vn168_crm_phone_mgt) to see the updates
+Device_code will now auto increase (unique)
+Device info will store the phone details (unique)
+Form manage :
+Asssign previledge to team lead 
