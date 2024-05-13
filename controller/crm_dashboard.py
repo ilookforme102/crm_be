@@ -391,7 +391,7 @@ def get_data():
 ###############################################
 ###### tracking interaction_result/cateogry/date#########
 @crm_stats.route('/charts/get_anything')
-def get_data():
+def get_dataa():
     data = request.args
     condition = ''
     condition = data.get('category',None)
