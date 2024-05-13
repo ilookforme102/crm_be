@@ -330,7 +330,7 @@ def get_category_date_stats():
 # ON c.date = date( cu.filled_date) and cu.category = ca.category
 # GROUp BY  c.date, ca.category
 # ORDER BY c.date, ca.category;
-@crm_stats.route('/charts/daily_tracking') # Bang theo do so lieu moi ngay categor/date
+@crm_stats.route('/charts/daily_tracking_category') # Bang theo do so lieu moi ngay category/date
 def get_daily_customer():
     data = request.args
     first_day_this_month = datetime.now().replace(day =1).strftime('%Y-%m-%d')
@@ -387,6 +387,21 @@ def get_data():
     result = db.session.execute(sql)
     users = [{'date':row[0], 'bo_code': row[1], 'customer': row[2]} for row in result]
     return jsonify(users)
+
+###############################################
+###### tracking interaction_result/cateogry/date#########
+@crm_stats.route('/charts/get_anything')
+def get_data():
+    data = request.args
+    condition = ''
+    condition = data.get('category',None)
+    if condition:
+        condition_str = f'''where `db_vn168_crm_customer`.category = "{condition}"'''
+    sql = text(f'''select ss.date, ss.bo,COUNT(cuu.code) customer from (select DISTINCT date(cu.filled_date) date, b.bo_code bo FROM `db_vn168_crm_customer` cu CROSS join `db_vn168_crm_bo` b ) ss left join (select * from `db_vn168_crm_customer` {condition_str})cuu ON cuu.bo_code = ss.bo and date(cuu.filled_date) = ss.date GROUP by ss.date, ss.bo order by ss.date, ss.bo;''')
+    result = db.session.execute(sql)
+    users = [{'date':row[0], 'bo_code': row[1], 'customer': row[2]} for row in result]
+    return jsonify(users)
+
 @crm_stats.route('/test')
 def show_dashboard():
     return {'message':'helloworld'}

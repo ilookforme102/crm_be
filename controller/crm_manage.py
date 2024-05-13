@@ -87,7 +87,7 @@ def get_records():
         if key in data:
             query = query.filter(value)
 
-    customers =  query.all()
+    customers =  query.order_by(Customers.filled_date.desc()).all()
     print(query.statement)
     customer_data = [{'code':customer.code, 'username':customer.username,'note':customer.note,'code_origin':customer.code_origin,'phone_number':customer.phone_number,'category':customer.category,'bo_code':customer.bo_code,'contact_note':customer.contact_note,'call_note':customer.call_note,'zalo_note':customer.zalo_note,'tele_note':customer.tele_note,'sms_note':customer.sms_note,'social_note':customer.social_note,'interaction_content':customer.interaction_content,'interaction_result':customer.interaction_result,'person_in_charge':customer.person_in_charge,'filled_date': customer.filled_date.isoformat(),'assistant':customer.assistant,'creator':customer.creator} for customer in customers]
     paginated_data = customer_data[start_index:end_index]

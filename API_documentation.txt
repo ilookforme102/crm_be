@@ -104,6 +104,8 @@
 ###############IN-and-OUT############
 #/login [GET,POST]
 #/logout
+##############Planning###########################
+maybe we could add chatbox
 ###############Update############################
 Record Table:
 add phone_number

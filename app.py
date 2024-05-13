@@ -69,13 +69,17 @@ def login():
             session['checkin_time'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             session['checkout_time'] = 'chưa check out bạn eey!'#'not yet checked out'
             role = User.query.get(session['username']).role
-            company_name = User.query.get(session['username']).company_name
-            session['role'] = role
-            login_ip = get_ip_addr()
-            new_working_session = Session_Mgt(username=username,checkin_time = session['checkin_time'],login_ip = login_ip,checkout_time = session['checkout_time'])
-            db.session.add(new_working_session)
-            db.session.commit()
-            return jsonify({'message': 'Welcome, {},you are logging in as {}!'.format(session['username'],session['role']),'role': session['role'],'username':session['username'],'company_name': company_name})#session['username']
+            team = User.query.get(session['username']).team
+            if team == 'crm' or role == 'admin':
+                company_name = User.query.get(session['username']).company_name
+                session['role'] = role
+                login_ip = get_ip_addr()
+                new_working_session = Session_Mgt(username=username,checkin_time = session['checkin_time'],login_ip = login_ip,checkout_time = session['checkout_time'])
+                db.session.add(new_working_session)
+                db.session.commit()
+                return jsonify({'message': 'Welcome, {},you are logging in as {}!'.format(session['username'],session['role']),'role': session['role'],'username':session['username'],'company_name': company_name})#session['username']
+            else: 
+                return jsonify({'error': 'unauthenticated login'}), 401
         else:
             return jsonify({'error': 'Invalid username or password'}), 401
 
