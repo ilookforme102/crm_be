@@ -23,7 +23,7 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 
 # CORS(app, supports_credentials = True)#resources={r"/*": {"origins": "*"}},
 
-# CORS(app, supports_credentials = True)
+CORS(app, supports_credentials = True)
 
 db = SQLAlchemy(app)
 ###########SQL Query#############
