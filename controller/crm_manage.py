@@ -1224,7 +1224,7 @@ def add_sim():
         return jsonify({"error": "Sim Number is already existed, please try again"}), 409
     new_sim  = Sim_Mgt(
         sim_code = sim_code,
-        number = number
+        number = number,
         provider = data.get('provider'),
         status = data.get('status'),
         package = data.get('package'),
