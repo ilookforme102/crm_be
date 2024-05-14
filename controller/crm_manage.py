@@ -1131,7 +1131,7 @@ def add_ip():
     if not request.form:
         return jsonify({"error": "Missing FORM in request"}), 400
     data = request.form
-    ip_code   = data.get('ip_code')
+    ip_code = get_auto_any_code(IP_Mgt, attr = 'ip_code', prefix = 'IP-')
     ip_info  = data.get('ip_info')
     expired_date = data.get('expired_date')
     country = data.get('country') ##### get from zalo note table
@@ -1140,8 +1140,8 @@ def add_ip():
     day_until_expiration = data.get('day_until_expiration')
     zalo_note = data.get('zalo_note')
     ip_note = data.get('ip_note')
-    if IP_Mgt.query.get(ip_code):
-        return jsonify({"error": "Ip code is already existed, please try again"}), 409
+    if IP_Mgt.query.filter(IP_Mgt.ip_info == ip_info):
+        return jsonify({"error": "Ip Info is already existed, please try again"}), 409
     new_phone  = IP_Mgt(
         ip_code = ip_code,
         ip_info = ip_info,
@@ -1219,11 +1219,12 @@ def add_sim():
         return jsonify({"error": "Missing FORM in request"}), 400
     data = request.form
     sim_code   = get_auto_any_code(Sim_Mgt, attr = 'sim_code', prefix = 'SIM-')
-    if Sim_Mgt.query.get(sim_code):
-        return jsonify({"error": "Sim code is already existed, please try again"}), 409
+    number = data.get('number')
+    if Sim_Mgt.query.filter(Sim_Mgt.number == number):
+        return jsonify({"error": "Sim Number is already existed, please try again"}), 409
     new_sim  = Sim_Mgt(
         sim_code = sim_code,
-        number = data.get('number'),
+        number = number
         provider = data.get('provider'),
         status = data.get('status'),
         package = data.get('package'),
@@ -1245,9 +1246,12 @@ def add_sim():
 def edit_sim(sim_code):
     data = request.form
     sim = Sim_Mgt.query.get(sim_code)
+    number = data.get('number')
     if not sim:
         return jsonify({'error': 'Sim not found'}), 404
-    sim.number = data.get('number')
+    if Sim_Mgt.query.filter(Sim_Mgt.number == number):
+        return jsonify({"error": "Sim Number is already existed, please try again"}), 409
+    sim.number = number
     sim.provider = data.get('provider')
     sim.status = data.get('status')
     sim.package = data.get('package')
