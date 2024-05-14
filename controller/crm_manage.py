@@ -1280,7 +1280,7 @@ def remove_sim(sim_code):
 ##########################
 @crm_bp.route('/tool/zalo')
 def get_zalo():
-    zalos = Zalo_Mgt.query.all()
+    zalos = Zalo_Mgt.query.order_by(Zalo_Mgt.code.desc()).all()
     zalo_data = [{'code': zalo.code,
                 'tool_category': zalo.tool_category,
                 'creation_device': zalo.creation_device,
@@ -1365,7 +1365,7 @@ def remove_zalo(code):
 ##########################
 @crm_bp.route('/tool/tele')
 def get_tele():
-    teles = Tele_Mgt.query.all()
+    teles = Tele_Mgt.query.order_by(Tele_Mgt.code.desc()).all()
     tele_data = [{'code': tele.code,
                 'type': tele.type,
                 'tool_category': tele.tool_category,
@@ -1453,7 +1453,7 @@ def remove_tele(code):
 ##########################
 @crm_bp.route('/tool/social')
 def get_social():
-    socials = Social_Mgt.query.all()
+    socials = Social_Mgt.query.order_by(Social_Mgt.code.desc()).all()
     social_data = [{'code': social.code,
                 'tool_category': social.tool_category,
                 'creation_device': social.creation_device,
@@ -1539,8 +1539,9 @@ def remove_social(code):
 ##########################
 @crm_bp.route('/tool/email')
 def get_email():
-    emails = Email_Mgt.query.all()
-    email_data = [{'email': email.email,
+    emails = Email_Mgt.query.order_by(Email_Mgt.id.desc()).all()
+    email_data = [{'id': email.id,
+                'email': email.email,
                 'recovery_email': email.recovery_email,
                 'number_verification': email.number_verification,
                 'person_in_charge': email.person_in_charge,
