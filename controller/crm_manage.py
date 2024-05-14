@@ -1117,7 +1117,7 @@ def get_list_linked_tool():
 
             paginated_data = result_data[start_index:end_index]
             return jsonify({'items':paginated_data,'page':page,'per_page':per_page, 'total_items':len(result_data)})
-    except ValueError :
+    except (ValueError,TypeError) :
         result_data = [{'device':result.device_info,'code': result.code,'linked_tools': result.linked_tools} for result in results]
 
         paginated_data = result_data[start_index:end_index]
