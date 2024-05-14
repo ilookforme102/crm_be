@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request, session, make_response,redirect, url_for,Blueprint
 from flask_cors import CORS,cross_origin
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Date,Time,DateTime , and_, func, case, Integer, union
+from sqlalchemy import Date,Time,DateTime , and_, func, case, Integer, union,desc
 import datetime
 from datetime import datetime, timedelta, time
 from models.db_schema import User, BO, Category,Contact_Note,Call_Note,Zalo_Note,Tele_Note,SMS_Note,Social_Note,Interaction_Content,Interaction_Result,Customers,Customer_Record_History,Tool_Category,Sim_Mgt,IP_Mgt,Phone_Mgt,Email_Mgt,Zalo_Mgt,Tele_Mgt,Social_Mgt,Session_Mgt
@@ -1096,11 +1096,34 @@ def get_list_linked_tool():
     final_query = db.session.query(raw_data_query.c.device_info, 
                                    raw_data_query.c.code,
                                    func.count(raw_data_query.c.code).over(partition_by=raw_data_query.c.device_info).label('linked_tools')
-                                     ).order_by('linked_tools')
+                                     ).order_by(desc('linked_tools'))
     # Executing the final query
     results = final_query.all()
-    result_data = [{'devicel':result.device_info,'code': result.code,'linked_tools': result.linked_tools} for result in results]
-    return result_data
+    data = request.args
+    page = int(data.get('page',1))
+    per_page = int(data.get('per_page',20))
+    start_index = (page - 1) * per_page
+    end_index = start_index + per_page
+    try:
+        linked_tools = int(data.get('linked_tools', None))
+        if linked_tools or linked_tools == 0:
+            result_data = [{'device':result.device_info,'code': result.code,'linked_tools': result.linked_tools} for result in results if result.linked_tools == linked_tools]
+
+            # linked_data = [i for i in result_data if i['linked_tools'] == linked_tools]
+            paginated_data = result_data[start_index:end_index]
+            return jsonify({'items':paginated_data,'page':page,'per_page':per_page, 'total_items':len(result_data)})
+        elif linked_tools is None:
+            result_data = [{'device':result.device_info,'code': result.code,'linked_tools': result.linked_tools} for result in results]
+
+            paginated_data = result_data[start_index:end_index]
+            return jsonify({'items':paginated_data,'page':page,'per_page':per_page, 'total_items':len(result_data)})
+    except ValueError :
+        result_data = [{'device':result.device_info,'code': result.code,'linked_tools': result.linked_tools} for result in results]
+
+        paginated_data = result_data[start_index:end_index]
+        return jsonify({'items':paginated_data,'page':page,'per_page':per_page, 'total_items':len(result_data)})
+
+
 ###################
 ###IP Management###
 ###################
