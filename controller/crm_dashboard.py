@@ -17,12 +17,14 @@ crm_stats = Blueprint('crm_stats', __name__, url_prefix='/crm/stats')
 ######################################################################################################
 #Total number of contacted customer (number of rows in the database)
 #Total number of customers who have deposited into their betting account (depositors) : Number
-#Conversion rate (depositos/customers) of SEO data and Non-SEO data : Number
+#Conversion rate (depositos/customers) of SEO data and Non-SEO data : 
+
 @crm_stats.route('/metrics/key_metrics')
 def key_metrics():
     data = request.args
-    start_date = data.get('start_date')
-    end_date = data.get('end_date')
+    start_date = data.get('start_date',"2020-01-01")
+    end_date_default = datetime.now().strftime('%Y-%m-%d')
+    end_date = data.get('end_date',end_date_default)
     query = Customers.query
     if start_date and end_date:
         query = query.filter(and_(
@@ -81,8 +83,9 @@ def key_metrics():
 @crm_stats.route('/charts/customers_per_member')
 def get_customer_per_member():
     data = request.args
-    start_date = data.get('start_date')
-    end_date = data.get('end_date')
+    start_date = data.get('start_date',"2020-01-01")
+    end_date_default = datetime.now().strftime('%Y-%m-%d')
+    end_date = data.get('end_date',end_date_default)
     pic = data.get('person_in_charge')
     query = Customers.query
     results1 = query.with_entities(
@@ -151,8 +154,9 @@ def get_depositor_each():
     # # "team B": {data for team B}
     # # }
     data = request.args
-    start_date = data.get('start_date')
-    end_date = data.get('end_date')
+    start_date = data.get('start_date',"2020-01-01")
+    end_date_default = datetime.now().strftime('%Y-%m-%d')
+    end_date = data.get('end_date',end_date_default)
     query = Customers.query
     results = query.with_entities(
         func.count(Customers.code).label('Depositor'),
@@ -181,8 +185,9 @@ def get_depositor_each():
 @crm_stats.route('/charts/category_result')
 def active_customer_for_category():
     data = request.args
-    start_date = data.get('start_date')
-    end_date = data.get('end_date')
+    start_date = data.get('start_date',"2020-01-01")
+    end_date_default = datetime.now().strftime('%Y-%m-%d')
+    end_date = data.get('end_date',end_date_default)
     query = Customers.query
     results = query.with_entities(
         case(
@@ -213,8 +218,9 @@ def active_customer_for_category():
 @crm_stats.route('/charts/customer_pic_result')
 def get_customer_pic_result():
     data = request.args
-    start_date = data.get('start_date')
-    end_date = data.get('end_date')
+    start_date = data.get('start_date',"2020-01-01")
+    end_date_default = datetime.now().strftime('%Y-%m-%d')
+    end_date = data.get('end_date',end_date_default)
     query = Customers.query
     results = query.with_entities(
         Customers.person_in_charge,
@@ -241,8 +247,9 @@ def get_customer_pic_result():
 @crm_stats.route('/charts/customer_date')
 def get_customer_date():
     data  = request.args
-    start_date = data.get('start_date')
-    end_date = data.get('end_date')
+    start_date = data.get('start_date',"2020-01-01")
+    end_date_default = datetime.now().strftime('%Y-%m-%d')
+    end_date = data.get('end_date',end_date_default)
     query = Customers.query
     results = query.with_entities(
         func.date(Customers.filled_date).label('date'),
@@ -262,8 +269,9 @@ def get_customer_date():
 @crm_stats.route('/charts/pic_result_customer')
 def get_pic_result():
     data = request.args
-    start_date = data.get('start_date')
-    end_date = data.get('end_date')
+    start_date = data.get('start_date',"2020-01-01")
+    end_date_default = datetime.now().strftime('%Y-%m-%d')
+    end_date = data.get('end_date',end_date_default)
     query = Customers.query
     results = query.with_entities(
         Customers.person_in_charge.label('pic'),
@@ -288,8 +296,9 @@ def get_pic_result():
 @crm_stats.route('/charts/property_date_stats')
 def get_property_date_stats():
     data = request.args
-    start_date = data.get('start_date')
-    end_date = data.get('end_date')
+    start_date = data.get('start_date',"2020-01-01")
+    end_date_default = datetime.now().strftime('%Y-%m-%d')
+    end_date = data.get('end_date',end_date_default)
     attr = data.get('property')
     query  = Customers.query
     results = query.with_entities(
@@ -311,8 +320,9 @@ def get_property_date_stats():
 @crm_stats.route('/charts/sub_query')
 def get_category_date_stats():
     data = request.args
-    start_date = data.get('start_date')
-    end_date = data.get('end_date')
+    start_date = data.get('start_date',"2020-01-01")
+    end_date_default = datetime.now().strftime('%Y-%m-%d')
+    end_date = data.get('end_date',end_date_default)
     attr1 = data.get('attr1', None)
     attr2 = data.get('attr2', None)
     attr2_sub = data.get('attr2_sub', None)
