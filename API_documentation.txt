@@ -92,6 +92,16 @@
 #Time Serrie data for total depositors comparison between CRM customers and SEO customers
 #make calendar-like chart for team member performance
 #Table to calculate total of new registration for each bo for each day
+Endpoints:
+/charts/customers_per_member
+/charts/pic_time
+/charts/category_result
+/charts/customer_pic_result
+/charts/customer_date
+/charts/pic_result_customer
+/charts/property_date_stats
+/charts/sub_query
+/charts/daily_tracking_category
 ##############Member Management####################
 #crm/user
 #crm/user [POST]
