@@ -968,6 +968,7 @@ def show_phone():
     phones = Phone_Mgt.query.all()
     phone_data = [{'device_code': phone.device_code,
                    'device_info': phone.device_info,
+                   'online':phone.online,
                    'online_cls': phone.online_cls,
                    'online_nkb': phone.online_nkb,
                    'online_agency': phone.online_agency,
