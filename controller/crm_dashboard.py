@@ -18,25 +18,35 @@ crm_stats = Blueprint('crm_stats', __name__, url_prefix='/crm/stats')
 #Total number of contacted customer (number of rows in the database)
 #Total number of customers who have deposited into their betting account (depositors) : Number
 #Conversion rate (depositos/customers) of SEO data and Non-SEO data : Number
-@crm_stats.route('/metrics/key_metrics', methods = ['POST','OPTIONS'])
+@crm_stats.route('/metrics/key_metrics')
 def key_metrics():
-    data = request.form
+    data = request.args
     start_date = data.get('start_date')
     end_date = data.get('end_date')
     query = Customers.query
-    query = query.filter(and_(
-        Customers.filled_date >= datetime.strptime(start_date, '%Y-%m-%d'),
-        Customers.filled_date <= datetime.strptime(end_date, '%Y-%m-%d')
-    ))
+    if start_date and end_date:
+        query = query.filter(and_(
+            Customers.filled_date >= datetime.strptime(start_date, '%Y-%m-%d'),
+            Customers.filled_date <= datetime.strptime(end_date, '%Y-%m-%d')
+        ))
     customers = query.count()
     seo_customers = query.filter(Customers.category == 'SEO Data').count()
     crm_customers  = query.filter(Customers.category != 'SEO Data').count()
-    seo_depositors = query.filter(Customers.interaction_result == ['Khách SEO Nạp Tiền']).count()
+    seo_depositors = query.filter(Customers.interaction_result == ['Khách SEO Tự Nạp Tiền']).count()
     crm_depositors = query.filter(Customers.interaction_result == ['Khách CRM Nạp Tiền']).count()
-    depositors = query.filter(Customers.interaction_result.in_(['Khách SEO Nạp Tiền','Khách CRM Nạp Tiền'])).count()
-    conversion_rate =  100*depositors/customers
-    seo_conversion_rate =  100*seo_depositors/seo_customers
-    crm_conversion_rate =  100*crm_depositors/crm_customers
+    depositors = query.filter(Customers.interaction_result.in_(['Khách SEO Tự Nạp Tiền','Khách CRM Nạp Tiền'])).count()
+    try:
+        conversion_rate =  100*depositors/customers
+    except ZeroDivisionError:
+        conversion_rate = 0
+    try:
+        seo_conversion_rate =  100*seo_depositors/seo_customers
+    except ZeroDivisionError:
+        seo_conversion_rate = 0
+    try:
+        crm_conversion_rate =  100*crm_depositors/crm_customers
+    except ZeroDivisionError:
+        crm_conversion_rate = 0 
     # return {
     #         'customers':customers,
     #         'conversion_rate':conversion_rate,
@@ -61,7 +71,7 @@ def key_metrics():
             'conversion_rate': crm_conversion_rate
         }
     })
-#crm/stats/charts
+#/charts/customers_per_member
 #Time serrie data for total customers 
 #Heatmap data for category data and its result
 #Time serries data for total number of customers for each CRM team member
