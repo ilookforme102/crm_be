@@ -73,6 +73,39 @@ def key_metrics():
             'conversion_rate': crm_conversion_rate
         }
     })
+###############################################
+#The pie chart to see the ingredient of depositor with 2 class: Khach SEO Tu Nap Tien and Khach CRM Nap Tien
+def calculate_percentage(data):
+    # Calculate the total count
+    total_count = sum(item['count'] for item in data)
+    
+    # Calculate the percentage for each category
+    percentages = [
+        {'category': item['category'], 'percentage': (item['count'] / total_count) * 100}
+        for item in data
+    ]
+    
+    return percentages
+
+@crm_stats.route('/charts/depositor_result')
+def get_depositor_result():
+    data  =  request.args
+    start_date = data.get('start_date',"2020-01-01")
+    end_date_default = datetime.now().strftime('%Y-%m-%d')
+    end_date = data.get('end_date',end_date_default)
+    query = Customers.query
+    results =  query.with_entities(
+        Customers.interaction_result,
+        func.count(Customers.interaction_result).label('count')
+        ).filter(and_(
+            Customers.interaction_result.in_(['Khách SEO Tự Nạp Tiền','Khách CRM Nạp Tiền']),
+            Customers.filled_date >= start_date,
+            Customers.filled_date <= end_date)).group_by(
+            Customers.interaction_result
+        ).all()
+    result_dict = [{'category': result.interaction_result,'count': result.count} for result in results]
+    percentages = calculate_percentage(result_dict)
+    return jsonify(percentages)#jsonify([{'value': result.count} for result in results])
 #/charts/customers_per_member
 #Time serrie data for total customers 
 #Heatmap data for category data and its result
@@ -162,7 +195,7 @@ def get_depositor_each():
         func.count(Customers.code).label('Depositor'),
         Customers.person_in_charge,
     ).filter(and_(
-        Customers.interaction_result.in_(['Khách SEO Nạp Tiền','Khách CRM Nạp Tiền']),
+        Customers.interaction_result.in_(['Khách SEO Tự Nạp Tiền','Khách CRM Nạp Tiền']),
         Customers.filled_date >= start_date,
         Customers.filled_date <= end_date
                   )).group_by(
