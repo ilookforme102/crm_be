@@ -1663,7 +1663,11 @@ def show_users():
             return jsonify({'items':paginated_data,'page':page,'per_page':per_page, 'total_items':len(user_data)})
         except TypeError:
             return jsonify({'items':user_data,'page':1,'per_page':len(user_data), 'total_items':len(user_data)})
-    
+@crm_bp.route('/user_list')
+def get_all_user():
+    users = User.query.all()
+    user_names = [user.username for user in users]
+    return user_names
 #Add user, not register
 @crm_bp.route('/user', methods=['POST'])
 def add_user():
