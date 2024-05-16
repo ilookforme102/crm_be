@@ -361,8 +361,9 @@ def get_category_date_stats():
     attr2_sub = data.get('attr2_sub', None)
     query = Customers.query
     query  = query.with_entities(
-        func.date(Customers.__dict__['filled_date']).label('date'),
+        # func.date(Customers.__dict__['filled_date']).label('date'),
         Customers.__dict__[attr1].label('property'),
+        Customers.__dict__[attr2].label('property2'),
         func.count(Customers.__dict__[attr1]).label('count')
     ).filter(
         and_(
@@ -372,10 +373,11 @@ def get_category_date_stats():
     if attr2 and attr2_sub:
         query = query.filter( Customers.__dict__[attr2] == attr2_sub)
     results =  query.group_by(
-            func.date(Customers.filled_date),
-            Customers.__dict__[attr1]
+            # func.date(Customers.filled_date),
+            Customers.__dict__[attr1],
+            Customers.__dict__[attr2]
         ).all()
-    data = [{'date': result.date, attr1: result.property, 'count': result.count} for result in results]    
+    data = [{ attr1: result.property,attr2: result.property2, 'count': result.count} for result in results]    
     return data
 # SELECT c.date date, ca.category category,COUNT(cu.code) customer  FROM  (SELECT  DISTINCT(DATE(c.filled_date)) date FROM `db_vn168_crm_customer` c) c
 # CROSS JOIN  `db_vn168_crm_category` ca
