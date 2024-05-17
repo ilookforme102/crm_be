@@ -441,16 +441,16 @@ def get_monthly_depositor_crm_seo():
     # return jsonify(data)
     results =  db.session.query(
         Customers.interaction_result.label('result'),
-        func.month(Customers.filled_date).label('month'),
-        func.count(func.month(Customers.filled_date)).label('number_depositor')
+        func.date(Customers.filled_date).label('date'),
+        func.count(func.date(Customers.filled_date)).label('number_depositor')
     ).filter(
         Customers.interaction_result.in_(["Khách CRM Nạp Tiền", "Khách SEO Tự Nạp Tiền"])
     ).group_by(
         Customers.interaction_result.label('result'),
-        func.month(Customers.filled_date).label('month')
+        func.date(Customers.filled_date).label('date')
     ).all()
-    query_data1 = [{'result':result.result, 'month':result.month,'number_depositor': result.number_depositor } for result in results if result.result == 'Khách CRM Nạp Tiền']
-    query_data2 = [{'result':result.result, 'month':result.month,'number_depositor': result.number_depositor } for result in results if result.result == 'Khách SEO Tự Nạp Tiền']
+    query_data1 = [{'result':result.result, 'date':result.date,'number_depositor': result.number_depositor } for result in results if result.result == 'Khách CRM Nạp Tiền']
+    query_data2 = [{'result':result.result, 'date':result.date,'number_depositor': result.number_depositor } for result in results if result.result == 'Khách SEO Tự Nạp Tiền']
     query_data = {'CRM': query_data1,'SEO': query_data2}
     return jsonify(query_data)
 ######################################
