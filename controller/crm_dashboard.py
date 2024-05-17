@@ -428,7 +428,31 @@ def get_daily_customer():
     print(final_query.statement)
     data = [{'count':i.date,'category':i.category,'customer':i.customer} for i in    final_data ]
     return data
-
+#Comparing number of SEO/CRM depositor monthly
+@crm_stats.route('/charts/monthly_depositor_SEO_vs_CRM')
+def get_monthly_depositor_crm_seo():
+    # sql =  text(f'''
+    # SELECT interaction_result, MONTH(filled_date),COUNT( MONTH(filled_date)) FROM `db_vn168_crm_customer`
+    # WHERE interaction_result in ("Khách CRM Nạp Tiền", "Khách SEO Tự Nạp Tiền")
+    # GROUP BY interaction_result,MONTH(filled_date);
+    # ''')
+    # results = db.session.execute(sql)
+    # data = [{'value1': result[0]} for result in results]
+    # return jsonify(data)
+    results =  db.session.query(
+        Customers.interaction_result.label('result'),
+        func.month(Customers.filled_date).label('month'),
+        func.count(func.month(Customers.filled_date)).label('number_depositor')
+    ).filter(
+        Customers.interaction_result.in_(["Khách CRM Nạp Tiền", "Khách SEO Tự Nạp Tiền"])
+    ).group_by(
+        Customers.interaction_result.label('result'),
+        func.month(Customers.filled_date).label('month')
+    ).all()
+    query_data1 = [{'result':result.result, 'month':result.month,'number_depositor': result.number_depositor } for result in results if result.result == 'Khách CRM Nạp Tiền']
+    query_data2 = [{'result':result.result, 'month':result.month,'number_depositor': result.number_depositor } for result in results if result.result == 'Khách SEO Tự Nạp Tiền']
+    query_data = {'CRM': query_data1,'SEO': query_data2}
+    return jsonify(query_data)
 ######################################
 ### tracking category/bo_code/date######
 @crm_stats.route('/charts/flexattr')
