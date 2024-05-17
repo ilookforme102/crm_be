@@ -429,7 +429,7 @@ def get_daily_customer():
     data = [{'count':i.date,'category':i.category,'customer':i.customer} for i in    final_data ]
     return data
 #Comparing number of SEO/CRM depositor monthly
-@crm_stats.route('/charts/monthly_depositor_SEO_vs_CRM')
+@crm_stats.route('/charts/monthly_depositor_seo_vs_crm')
 def get_monthly_depositor_crm_seo():
     # sql =  text(f'''
     # SELECT interaction_result, MONTH(filled_date),COUNT( MONTH(filled_date)) FROM `db_vn168_crm_customer`
