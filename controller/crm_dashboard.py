@@ -143,8 +143,17 @@ def get_customer_per_member():
                     'person_in_charge': result.person_in_charge,
                 } for result in results
             ]
+            grouped_data = {}
+            for entry in data:
+                person_in_charge = entry["person_in_charge"].lower()
+                if person_in_charge not in grouped_data:
+                    grouped_data[person_in_charge] = []
+                grouped_data[person_in_charge].append({
+                    "customer_by_date": entry["customer_by_date"],
+                    "date": entry["date"]
+                })
 
-            return jsonify(data)
+            return jsonify(grouped_data )
         if pic == 'all':
             results  = results1.filter(and_(
                 Customers.filled_date >= start_date,
@@ -157,8 +166,17 @@ def get_customer_per_member():
                     'person_in_charge': result.person_in_charge,
                 } for result in results
             ]
+            grouped_data = {}
+            for entry in data:
+                person_in_charge = entry["person_in_charge"].lower()
+                if person_in_charge not in grouped_data:
+                    grouped_data[person_in_charge] = []
+                grouped_data[person_in_charge].append({
+                    "customer_by_date": entry["customer_by_date"],
+                    "date": entry["date"]
+                })
 
-            return jsonify(data)
+            return jsonify(grouped_data )
     else:
         results  = results1.filter(and_(
             Customers.filled_date >= start_date,
@@ -172,7 +190,17 @@ def get_customer_per_member():
             } for result in results
         ]
 
-        return jsonify(data)
+        grouped_data = {}
+        for entry in data:
+            person_in_charge = entry["person_in_charge"].lower()
+            if person_in_charge not in grouped_data:
+                grouped_data[person_in_charge] = []
+            grouped_data[person_in_charge].append({
+                "customer_by_date": entry["customer_by_date"],
+                "date": entry["date"]
+            })
+
+        return jsonify(grouped_data )
 @crm_stats.route('/charts/pic_time')
 #SELECT COUNT(`code`),person_in_charge FROM `db_vn168_crm_customer` WHERE `interaction_result` 
 #in ('Khách SEO Nạp Tiền','Khách CRM Nạp Tiền') 
