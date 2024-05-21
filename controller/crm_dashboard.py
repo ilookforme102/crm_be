@@ -477,8 +477,8 @@ def get_monthly_depositor_crm_seo():
         Customers.interaction_result.label('result'),
         func.date(Customers.filled_date).label('date')
     ).all()
-    query_data1 = [{'result':result.result, 'date':result.date,'number_depositor': result.number_depositor } for result in results if result.result == 'Khách CRM Nạp Tiền']
-    query_data2 = [{'result':result.result, 'date':result.date,'number_depositor': result.number_depositor } for result in results if result.result == 'Khách SEO Tự Nạp Tiền']
+    query_data1 = [{'result':result.result, 'date':result.date.strftime('%Y-%m-%d'),'number_depositor': result.number_depositor } for result in results if result.result == 'Khách CRM Nạp Tiền']
+    query_data2 = [{'result':result.result, 'date':result.date.strftime('%Y-%m-%d'),'number_depositor': result.number_depositor } for result in results if result.result == 'Khách SEO Tự Nạp Tiền']
     query_data = {'CRM': query_data1,'SEO': query_data2}
     return jsonify(query_data)
 ######################################
