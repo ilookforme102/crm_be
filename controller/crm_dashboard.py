@@ -526,7 +526,7 @@ def get_customer_by_username():
         Customers.person_in_charge,
         func.date(Customers.filled_date)
     ).order_by(Customers.filled_date).all()
-    data = {person_in_charge:[{'date': result.date.strftime('%Y-%m-%d'),'count':result.count} for result in results]}
+    data = [{'date': result.date.strftime('%Y-%m-%d'),'count':result.count} for result in results]
     return jsonify(data)
 @crm_stats.route('/test')
 def show_dashboard():
