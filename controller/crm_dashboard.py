@@ -508,7 +508,26 @@ def get_dataa():
     result = db.session.execute(sql)
     users = [{'date':row[0], 'bo_code': row[1], 'customer': row[2]} for row in result]
     return jsonify(users)
-
+@crm_stats.route('/charts/customer_pic_heatmap')
+def get_customer_by_username():
+    person_in_charge = session['username']
+    data = request.args
+    current_year = data.get('year',str(datetime.now().year) )
+    results = db.session.query(
+        Customers.person_in_charge.label('pic'),
+        func.date(Customers.filled_date).label('date'),
+        func.count(func.date(Customers.filled_date)).label('count')
+    ).filter(
+        and_(
+            func.year(Customers.filled_date)== current_year,
+            Customers.person_in_charge == person_in_charge
+        )
+    ).group_by(
+        Customers.person_in_charge,
+        func.date(Customers.filled_date)
+    ).order_by(Customers.filled_date).all()
+    data = {person_in_charge:[{'date': result.date.strftime('%Y-%m-%d'),'count':result.count} for result in results]}
+    return jsonify(data)
 @crm_stats.route('/test')
 def show_dashboard():
     return {'message':'helloworld'}
