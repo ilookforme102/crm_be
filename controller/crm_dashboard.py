@@ -528,6 +528,16 @@ def get_customer_by_username():
     ).order_by(Customers.filled_date).all()
     data = [{'date': result.date.strftime('%Y-%m-%d'),'count':result.count} for result in results]
     return jsonify(data)
+@crm_stats.route('/year_list')
+def get_year():
+    person_in_charge = session['username']
+    results = db.session.query(
+        func.year(Customers.filled_date).distinct().label('year')
+    ).filter(
+        Customers.person_in_charge == person_in_charge
+    ).all()
+    data = [result.year for result in results]
+    return jsonify(data)
 @crm_stats.route('/test')
 def show_dashboard():
     return {'message':'helloworld'}
