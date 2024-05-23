@@ -535,6 +535,8 @@ def get_year():
         func.year(Customers.filled_date).distinct().label('year')
     ).filter(
         Customers.person_in_charge == person_in_charge
+    ).order_by(
+        func.year(Customers.filled_date).desc()
     ).all()
     data = [result.year for result in results]
     return jsonify(data)
