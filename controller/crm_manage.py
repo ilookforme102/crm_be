@@ -965,7 +965,17 @@ def delete_tool_category(tool_category):
 ###Phone###
 @crm_bp.route('/device/phone')#GET
 def show_phone():
-    phones = Phone_Mgt.query.all()
+    data = request.args
+    query = Phone_Mgt.query
+    search_str = data.get('search')
+    if search_str:
+        query = query.filter(
+            or_(
+                Phone_Mgt.device_code.like(f"%{search_str}%"),
+                Phone_Mgt.device_info.like(f"%{search_str}%"),
+            )
+        )
+    phones = query.order_by(Phone_Mgt.device_code.desc()).all()
     phone_data = [{'device_code': phone.device_code,
                    'device_info': phone.device_info,
                    'online':phone.online,
@@ -976,7 +986,6 @@ def show_phone():
                    'number2': phone.number2,
                    'phone_note': phone.phone_note} for phone in phones]
     try:
-        data = request.args
         page = int(data.get('page',1))
         per_page = int(data.get('per_page',10))
         start_index = (page - 1) * per_page
@@ -1130,7 +1139,17 @@ def get_list_linked_tool():
 ###################
 @crm_bp.route('/device/ip')#GET
 def show_ip():
-    ips = IP_Mgt.query.all()
+    data = request.args
+    query = IP_Mgt.query
+    search_str = data.get('search')
+    if search_str:
+        query = query.filter(
+            or_(
+                IP_Mgt.ip_code.like(f"%{search_str}%"),
+                IP_Mgt.ip_info.like(f"%{search_str}%"),
+            )
+        )
+    ips = query.order_by(IP_Mgt.ip_code.desc()).all()
     ip_data = [{'ip_code': ip.ip_code,
                    'ip_info': ip.ip_info,
                    'expired_date': ip.expired_date,
@@ -1141,7 +1160,6 @@ def show_ip():
                    'zalo_note': ip.zalo_note,
                    'ip_note': ip.ip_note} for ip in ips]
     try:
-        data = request.args
         page = int(data.get('page',1))
         per_page = int(data.get('per_page',10))
         start_index = (page - 1) * per_page
@@ -1214,7 +1232,17 @@ def remove_ip(ip_code):
 #######################
 @crm_bp.route('/device/sim')#GET
 def show_sim():
-    sims = Sim_Mgt.query.all()
+    data = request.args
+    query = Sim_Mgt.query
+    search_str = data.get('search')
+    if search_str:
+        query = query.filter(
+            or_(
+                Sim_Mgt.sim_code.like(f"%{search_str}%"),
+                Sim_Mgt.number.like(f"%{search_str}%"),
+            )
+        )
+    sims = query.order_by(Sim_Mgt.sim_code.desc()).all()
     sim_data = [{'sim_code': sim.sim_code,
                 'number': sim.number,
                 'provider': sim.provider,
