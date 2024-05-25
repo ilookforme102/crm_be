@@ -30,13 +30,21 @@ def export_data():
         # Execute the query with the selected fields
         start_date_str = data.get('start_date')
         end_date_str = data.get('end_date')
+        data = []
+
+        if not start_date_str or not end_date_str:
+            results = db.session.query(*valid_fields).all()
+            for result in results:
+                user_data = {field: getattr(result, field) for field in field_list}
+                data.append(user_data)
+            
+            return jsonify(data)
         results = db.session.query(*valid_fields).filter(
             and_(
                 Customers.filled_date >= start_date_str,
                 Customers.filled_date <= end_date_str
             )
         ).order_by(Customers.filled_date.desc()).all()
-        data = []
         for result in results:
             user_data = {field: getattr(result, field) for field in field_list}
             data.append(user_data)
