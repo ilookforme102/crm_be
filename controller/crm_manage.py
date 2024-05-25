@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request, session, make_response,redirect, url_for,Blueprint
 from flask_cors import CORS,cross_origin
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Date,Time,DateTime , and_, func, case, Integer, union,desc
+from sqlalchemy import Date,Time,DateTime , and_, func, case, Integer, union,desc, or_
 import datetime
 from datetime import datetime, timedelta, time
 from models.db_schema import User, BO, Category,Contact_Note,Call_Note,Zalo_Note,Tele_Note,SMS_Note,Social_Note,Interaction_Content,Interaction_Result,Customers,Customer_Record_History,Tool_Category,Sim_Mgt,IP_Mgt,Phone_Mgt,Email_Mgt,Zalo_Mgt,Tele_Mgt,Social_Mgt,Session_Mgt
@@ -1304,7 +1304,17 @@ def remove_sim(sim_code):
 ##########################
 @crm_bp.route('/tool/zalo')
 def get_zalo():
-    zalos = Zalo_Mgt.query.order_by(Zalo_Mgt.code.desc()).all()
+    data = request.args
+    filter_val = data.get('search')
+    query =  Zalo_Mgt.query
+    if filter_val:
+        query = query.filter(
+        or_(
+            Zalo_Mgt.code.like(f"%{filter_val}%"),
+            Zalo_Mgt.username.like(f"%{filter_val}%")                   
+        )
+        )
+    zalos = query.order_by(Zalo_Mgt.code.desc()).all()
     zalo_data = [{'code': zalo.code,
                 'tool_category': zalo.tool_category,
                 'creation_device': zalo.creation_device,
@@ -1318,14 +1328,15 @@ def get_zalo():
                 'acc_status': zalo.acc_status,
                 'note': zalo.note} for zalo in zalos]
     try:
-        data = request.args
-        page = data.get('page',1)
-        per_page = data.get('per_page',10)
+        
+        page = int(data.get('page',1))
+        per_page = int(data.get('per_page',10))
         start_index = (page - 1) * per_page
         end_index = start_index + per_page
         paginated_data = zalo_data[start_index:end_index]
         return jsonify({'items':paginated_data,'page':page,'per_page':per_page, 'total_items':len(zalo_data)})
-    except Exception:
+    except Exception as e:
+        print(e)
         return jsonify({'items':zalo_data,'page':1,'per_page':len(zalo_data), 'total_items':len(zalo_data)})
 @crm_bp.route('/tool/zalo', methods= ['POST']) #POST
 def add_zalo():
@@ -1389,7 +1400,17 @@ def remove_zalo(code):
 ##########################
 @crm_bp.route('/tool/tele')
 def get_tele():
-    teles = Tele_Mgt.query.order_by(Tele_Mgt.code.desc()).all()
+    data = request.args
+    filter_val = data.get('search')
+    query =  Tele_Mgt.query
+    if filter_val:
+        query = query.filter(
+        or_(
+            Tele_Mgt.code.like(f"%{filter_val}%"),
+            Tele_Mgt.username.like(f"%{filter_val}%")                   
+        )
+        )
+    teles = query.order_by(Tele_Mgt.code.desc()).all()
     tele_data = [{'code': tele.code,
                 'type': tele.type,
                 'tool_category': tele.tool_category,
@@ -1404,9 +1425,8 @@ def get_tele():
                 'acc_status': tele.acc_status,
                 'note': tele.note} for tele in teles]
     try:
-        data = request.args
-        page = data.get('page',1)
-        per_page = data.get('per_page',10)
+        page = int(data.get('page',1))
+        per_page = int(data.get('per_page',10))
         start_index = (page - 1) * per_page
         end_index = start_index + per_page
         paginated_data = tele_data[start_index:end_index]
@@ -1477,7 +1497,17 @@ def remove_tele(code):
 ##########################
 @crm_bp.route('/tool/social')
 def get_social():
-    socials = Social_Mgt.query.order_by(Social_Mgt.code.desc()).all()
+    data = request.args
+    filter_val = data.get('search')
+    query =  Social_Mgt.query
+    if filter_val:
+        query = query.filter(
+        or_(
+            Social_Mgt.code.like(f"%{filter_val}%"),
+            Social_Mgt.username.like(f"%{filter_val}%")                   
+        )
+        )
+    socials = query.order_by(Social_Mgt.code.desc()).all()
     social_data = [{'code': social.code,
                 'tool_category': social.tool_category,
                 'creation_device': social.creation_device,
@@ -1491,9 +1521,8 @@ def get_social():
                 'acc_status': social.acc_status,
                 'note': social.note} for social in socials]
     try:
-        data = request.args
-        page = data.get('page',1)
-        per_page = data.get('per_page',10)
+        page = int(data.get('page',1))
+        per_page = int(data.get('per_page',10))
         start_index = (page - 1) * per_page
         end_index = start_index + per_page
         paginated_data = social_data[start_index:end_index]
@@ -1563,7 +1592,17 @@ def remove_social(code):
 ##########################
 @crm_bp.route('/tool/email')
 def get_email():
-    emails = Email_Mgt.query.order_by(Email_Mgt.id.desc()).all()
+    data = request.args
+    filter_val = data.get('search')
+    query =  Email_Mgt.query
+    if filter_val:
+        query = query.filter(
+        or_(
+            Email_Mgt.email.like(f"%{filter_val}%"),
+            Email_Mgt.number_verification.like(f"%{filter_val}%")                   
+        )
+        )
+    emails = query.order_by(Email_Mgt.id.desc()).all()
     email_data = [{'id': email.id,
                 'email': email.email,
                 'recovery_email': email.recovery_email,
@@ -1575,8 +1614,8 @@ def get_email():
                 } for email in emails]
     try:
         data = request.args
-        page = data.get('page',1)
-        per_page = data.get('per_page',10)
+        page = int(data.get('page',1))
+        per_page = int(data.get('per_page',10))
         start_index = (page - 1) * per_page
         end_index = start_index + per_page
         paginated_data = email_data[start_index:end_index]
