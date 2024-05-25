@@ -122,9 +122,12 @@ def get_auto_code(db, **kwargs):
     if count:
         count = int(count)
         index_ = count + 1
-        code = prefix+today_str+'-'+str(index_)
+        if len(str(index_))>=2:
+            code = prefix+today_str+'-'+str(index_)
+        else:
+             code = prefix+today_str+'-'+'0'+str(index_)
     else:
-        index_ = 1
+        index_ = '01'
         code = prefix+today_str+'-'+str(index_)
     return code
 def get_auto_sim_code(db, **kwargs):
