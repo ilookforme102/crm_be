@@ -15,6 +15,35 @@ def show_records():
     dates = [{'filled_date':record.filled_date ,"end date":(datetime.now().date()-timedelta(days=10)),"Start date":datetime.strptime("2024-04-23", '%Y-%m-%d').date()} for record in records]
     return dates    
 #Show all record
+@crm_bp.route('/export_data')
+def export_data():
+    data = request.args
+    fields = data.get('fields')
+    if fields:
+        # Split the fields by comma to get a list of field names
+        field_list = fields.split(',')
+        valid_fields = [getattr(Customers, field) for field in field_list if hasattr(Customers, field)]
+        
+        if not valid_fields:
+            return jsonify({'error': 'No valid fields specified'}), 400
+        
+        # Execute the query with the selected fields
+        start_date_str = data.get('start_date')
+        end_date_str = data.get('end_date')
+        results = db.session.query(*valid_fields).filter(
+            and_(
+                Customers.filled_date >= start_date_str,
+                Customers.filled_date <= end_date_str
+            )
+        ).order_by(Customers.filled_date.desc()).all()
+        data = []
+        for result in results:
+            user_data = {field: getattr(result, field) for field in field_list}
+            data.append(user_data)
+        
+        return jsonify(data)
+    else:
+        return jsonify({'error': 'No fields specified'}), 400
 @crm_bp.route('/record')
 def get_records():
     # users = Customers.query.all()
@@ -975,7 +1004,7 @@ def show_phone():
         query = query.filter(
             or_(
                 Phone_Mgt.device_code.like(f"%{search_str}%"),
-                Phone_Mgt.device_info.like(f"%{search_str}%"),
+                Phone_Mgt.device_info.like(f"%{search_str}%")
             )
         )
     phones = query.order_by(Phone_Mgt.device_code.desc()).all()
