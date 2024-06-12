@@ -123,7 +123,7 @@ class Customers(db.Model):
     interaction_content = db.Column(db.String(255), nullable = True)
     interaction_result = db.Column(db.String(255), nullable = True)
     person_in_charge = db.Column(db.String(255), nullable = False)
-    filled_date = db.Column(DateTime, nullable = False)
+    filled_date = db.Column(DateTime, nullable = True)
     assistant = db.Column(db.String(255),nullable = True)
     creator =  db.Column(db.String(255), nullable = False)
     def __repr__(self):

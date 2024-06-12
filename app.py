@@ -8,6 +8,8 @@ from controller.crm_dashboard import crm_stats
 from controller.crm_manage import crm_bp, get_auto_code,get_auto_any_code
 from models.db_schema import User, BO, Category,Contact_Note,Call_Note,Zalo_Note,Tele_Note,SMS_Note,Social_Note,Interaction_Content,Interaction_Result,Customers,Customer_Record_History,Tool_Category,Sim_Mgt,IP_Mgt,Phone_Mgt,Email_Mgt,Zalo_Mgt,Tele_Mgt,Social_Mgt,Session_Mgt
 from models.db_schema import app, db 
+from flask_cors import CORS,cross_origin
+
 CORS(app, supports_credentials = True)
 ###############################Preset Function#######################
 def get_ip_addr():
@@ -144,4 +146,4 @@ app.register_blueprint(crm_bp)
 # app.register_blueprint(dev_bp)
 # app.register_blueprint(seo_bp)
 if __name__ == '__main__':
-    app.run(port=5001, debug=True)
+    app.run(port=5000, debug=True)
