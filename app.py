@@ -146,4 +146,4 @@ app.register_blueprint(crm_bp)
 # app.register_blueprint(dev_bp)
 # app.register_blueprint(seo_bp)
 if __name__ == '__main__':
-    app.run(port=3000, debug=True)
+    app.run(port=3001, debug=True)
