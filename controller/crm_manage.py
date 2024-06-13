@@ -240,9 +240,52 @@ def edit_record(code):
     #######################
     # Get method perform a query filtering on the primary key
     record = Customers.query.get(code)
-    
     if not record:
         return jsonify({'error': 'Record not found'}), 404
+    current_record_data = {
+        "filled_date": record.filled_date,
+        "code": code, 
+        "username":record.username,
+        "note":record.note,
+        "code_origin":record.code_origin,
+        "phone_number":record.phone_number,
+        "category":record.category,
+        "bo_code":record.bo_code,
+        "contact_note": record.contact_note,
+        "call_note":record.call_note,
+        "zalo_note":record.zalo_note,
+        "tele_note":record.tele_note,
+        "sms_note" : record.sms_note,
+        "social_note":record.social_note,
+        "interaction_content":record.interaction_content, 
+        "interaction_result": record.interaction_result, 
+        "person_in_charge" : record.person_in_charge,
+        "assistant": record.assistant,
+        "creator" :record.creator,
+        "editor" :session["username"]
+    }
+    new_record_history = Customer_Record_History(filled_date = current_record_data["filled_date"],
+                                                  created_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 
+                                                  code= code, 
+                                                  username=current_record_data["username"],
+                                                  note=current_record_data["note"],
+                                                  code_origin=current_record_data["code_origin"],
+                                                  phone_number=current_record_data["phone_number"],
+                                                  category=current_record_data["category"],
+                                                  bo_code=current_record_data["bo_code"],
+                                                  contact_note = current_record_data["contact_note"],
+                                                  call_note=current_record_data["call_note"],
+                                                  zalo_note=current_record_data["zalo_note"],
+                                                  tele_note=current_record_data["tele_note"],
+                                                  sms_note = current_record_data["sms_note"],
+                                                  social_note=current_record_data["social_note"],
+                                                  interaction_content=current_record_data["interaction_content"], 
+                                                  interaction_result = current_record_data["interaction_result"], 
+                                                  person_in_charge = current_record_data["person_in_charge"],
+                                                  assistant = current_record_data["assistant"],
+                                                  creator = current_record_data["creator"],
+                                                   editor = session["username"] )
+    
     data = request.form
     record.username = data.get('username')
     record.note = data.get('note')
@@ -260,27 +303,7 @@ def edit_record(code):
     record.interaction_content = data.get('interaction_content')
     record.interaction_result = data.get('interaction_result')
     record.assistant = data.get('assistant')
-    new_record_history = Customer_Record_History(filled_date = record.filled_date,
-                                                  created_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 
-                                                  code= code, 
-                                                  username=record.username,
-                                                  note=record.note,
-                                                  code_origin=record.code_origin,
-                                                  phone_number=record.phone_number,
-                                                  category=record.category,
-                                                  bo_code=record.bo_code,
-                                                  contact_note = record.contact_note,
-                                                  call_note=record.call_note,
-                                                  zalo_note=record.zalo_note,
-                                                  tele_note=record.tele_note,
-                                                  sms_note = record.sms_note,
-                                                  social_note=record.social_note,
-                                                  interaction_content=record.interaction_content, 
-                                                  interaction_result = record.interaction_result, 
-                                                  person_in_charge = record.person_in_charge,
-                                                  assistant = record.assistant,
-                                                  creator = record.creator,
-                                                   editor = session["username"] )
+    
     db.session.add(new_record_history)
     db.session.commit()
     return jsonify({

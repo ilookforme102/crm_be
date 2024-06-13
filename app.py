@@ -105,7 +105,9 @@ def logout():
 
 # def get_user_info():
 #     headers_dict = {key: value for key, value in request.headers.items()}
-
+@app.route('/test')
+def test():
+    return request.cookies.get('session') 
 @crm_bp.route('/test')
 def test():
     # Define the timezone GMT+8
