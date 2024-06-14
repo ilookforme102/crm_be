@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request, session, make_response,redirect, url_for,Blueprint
 from flask_cors import CORS,cross_origin
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Date,Time,DateTime , and_, func, case, Integer, union,desc, or_
+from sqlalchemy import Date,Time,DateTime,asc ,nulls_last, and_, func, case, Integer, union,desc, or_
 import datetime
 from datetime import datetime, timedelta, time
 from models.db_schema import User, BO, Category,Contact_Note,Call_Note,Zalo_Note,Tele_Note,SMS_Note,Social_Note,Interaction_Content,Interaction_Result,Customers,Customer_Record_History,Tool_Category,Sim_Mgt,IP_Mgt,Phone_Mgt,Email_Mgt,Zalo_Mgt,Tele_Mgt,Social_Mgt,Session_Mgt
@@ -57,6 +57,7 @@ def get_records():
     # users = Customers.query.all()
     query = Customers.query
     data = request.args
+    is_edited = data.get('is_edited','false')
     page = int(data.get('page','1'))
     per_page = int(data.get('per_page','20'))
     start_index = (page - 1) * per_page
@@ -123,10 +124,12 @@ def get_records():
     for key, value in param_mapping.items():
         if key in data:
             query = query.filter(value)
-
-    customers =  query.order_by(Customers.filled_date.desc()).all()
+    if is_edited == 'false':
+        customers =  query.order_by(Customers.filled_date.desc()).all()
+    if is_edited == 'true':
+        customers = query.order_by(Customers.recent_changed_at.desc(),Customers.filled_date.desc()).all()
     print(query.statement)
-    customer_data = [{'code':customer.code, 'username':customer.username,'note':customer.note,'code_origin':customer.code_origin,'phone_number':customer.phone_number,'category':customer.category,'bo_code':customer.bo_code,'contact_note':customer.contact_note,'call_note':customer.call_note,'zalo_note':customer.zalo_note,'tele_note':customer.tele_note,'sms_note':customer.sms_note,'social_note':customer.social_note,'interaction_content':customer.interaction_content,'interaction_result':customer.interaction_result,'person_in_charge':customer.person_in_charge,'filled_date': customer.filled_date,'assistant':customer.assistant,'creator':customer.creator} for customer in customers]
+    customer_data = [{'code':customer.code, 'username':customer.username,'note':customer.note,'code_origin':customer.code_origin,'phone_number':customer.phone_number,'category':customer.category,'bo_code':customer.bo_code,'contact_note':customer.contact_note,'call_note':customer.call_note,'zalo_note':customer.zalo_note,'tele_note':customer.tele_note,'sms_note':customer.sms_note,'social_note':customer.social_note,'interaction_content':customer.interaction_content,'interaction_result':customer.interaction_result,'person_in_charge':customer.person_in_charge,'filled_date': customer.filled_date,'recent_changed_at':customer.recent_changed_at,'assistant':customer.assistant,'creator':customer.creator} for customer in customers]
     paginated_data = customer_data[start_index:end_index]
     paginated_data = customer_data[start_index:end_index]
 
@@ -244,6 +247,7 @@ def edit_record(code):
         return jsonify({'error': 'Record not found'}), 404
     current_record_data = {
         "filled_date": record.filled_date,
+        # "recent_changed_at"
         "code": code, 
         "username":record.username,
         "note":record.note,
@@ -303,7 +307,7 @@ def edit_record(code):
     record.interaction_content = data.get('interaction_content')
     record.interaction_result = data.get('interaction_result')
     record.assistant = data.get('assistant')
-    
+    record.recent_changed_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     db.session.add(new_record_history)
     db.session.commit()
     return jsonify({
