@@ -345,6 +345,28 @@ def remove_record(code):
 #crm/record_history/<string:code>
 @crm_bp.route('/record_history/<string:code>',methods =['GET'])
 def get_record_history(code):
+    current_record = Customers.query.get(code)
+    current_record_data = [{
+                            'code':code,
+                            'filled_date': current_record.filled_date,
+                            'username': current_record.username,
+                            'note': current_record.note,
+                            'code_origin': current_record.code_origin,
+                            'phone_number': current_record.phone_number,
+                            'category' : current_record.category,
+                            'bo_code' : current_record.bo_code,
+                            'contact_note':current_record.contact_note,
+                            'call_note' : current_record.call_note,
+                            'zalo_note' : current_record.zalo_note,
+                            'tele_note' : current_record.tele_note,
+                            'sms' : current_record.sms_note,
+                            'social_note' : current_record.social_note,
+                            'person_in_charge' : current_record.person_in_charge,
+                            'interaction_content' : current_record.interaction_content,
+                            'interaction_result' : current_record.interaction_result,
+                            'assistant' : current_record.assistant,
+                            'creator': current_record.creator,
+                            }]  
     history_records = Customer_Record_History.query.filter(Customer_Record_History.code == code).order_by(Customer_Record_History.created_at.desc()).all()
     history_record_data = [{ 'code':code,
                             'filled_date': history_record.filled_date,
@@ -368,7 +390,11 @@ def get_record_history(code):
                             'creator': history_record.creator,
                             'editor': history_record.editor
                            } for history_record in history_records]
-    return history_record_data
+    return jsonify({
+        'current_record': current_record_data,
+        'history_record': history_record_data
+    })
+    
 @crm_bp.route('/add_history',methods = ['POST'])
 def add_history():
     data = request.form
