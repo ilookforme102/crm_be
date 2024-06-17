@@ -353,6 +353,7 @@ def get_record_history(code):
     current_record_data = [{
                             'code':code,
                             'filled_date': current_record.filled_date,
+                            'recent_changed_at': current_record.recent_changed_at,
                             'username': current_record.username,
                             'note': current_record.note,
                             'code_origin': current_record.code_origin,
@@ -1859,16 +1860,26 @@ def add_user():
 def edit_user(username):
     if 'role' in session and session['role'] in ['admin','leader']:
         user = User.query.get(username)
-        data = request.form
-        current_password =  user.password
-        new_password = data.get('password')
-        
         if user:
-            if new_password == current_password:
-                return jsonify({'error': 'new password should be different from old password'}), 400
-            else:
-                db.session.commit()
-                return jsonify({'message': 'User data editted successfully'})
+            data = request.form
+            new_password = data.get('password')
+            if new_password:
+                user.password = new_password
+            new_company_name = data.get('company_name')
+            if new_company_name:
+                user.company_name = new_company_name
+            new_company_id = data.get('company_id')
+            if new_company_id:
+                user.company_id = new_company_id
+            new_role = data.get('role')
+            if new_role:
+                user.role = new_role
+            new_team = data.get('team')
+            if new_team:
+                user.team = new_team
+        
+            db.session.commit()
+            return jsonify({'message': 'User data editted successfully'})
         else:
             # If the user does not exist, return a 404 error
             return jsonify({'error': 'Record not found'}), 404
