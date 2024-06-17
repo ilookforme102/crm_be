@@ -353,7 +353,7 @@ def edit_record(code):
         }
     }), 200
     else:
-        return jsonify({'error': 'No changes made to the record'}), 404
+        return jsonify({'error': 'No changes made to the record'}), 304
     
 #######Delete record#############
 @crm_bp.route('/record/<string:code>',methods = ['DELETE', 'OPTIONS'])
