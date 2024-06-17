@@ -329,10 +329,7 @@ def edit_record(code):
     if change_log:
         db.session.add(new_record_history)
         db.session.commit()
-    else:
-        return jsonify({'message': 'No changes made to the record'}), 200
-    
-    return jsonify({
+        return jsonify({
         'message': 'New record for {} updated successfully'.format(record.code),
         'record': {
             'code': record.code,
@@ -355,7 +352,9 @@ def edit_record(code):
             'creator': record.creator
         }
     }), 200
-
+    else:
+        return jsonify({'message': 'No changes made to the record'}), 200
+    
 #######Delete record#############
 @crm_bp.route('/record/<string:code>',methods = ['DELETE', 'OPTIONS'])
 def remove_record(code):
