@@ -1838,7 +1838,7 @@ def add_user():
             return jsonify({"error": "Missing JSON in request"}), 400
         data = request.form
         username = data.get('username')
-        password = data.get('username')
+        password = data.get('password')
         company_name = data.get('company_name')
         company_id = data.get('company_id')
         role = data.get('role')
