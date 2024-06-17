@@ -53,7 +53,7 @@ def check_authentication():
 ###############################################################################################
 # Login endpoint
 
-@app.route('/login', methods=['POST', 'GET'])
+@app.route('/login', methods=['POST'])
 def login():
     session.permanent = True
     app.permanent_session_lifetime = timedelta(minutes=60)

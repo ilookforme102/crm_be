@@ -288,7 +288,8 @@ def edit_record(code):
                                                   person_in_charge = current_record_data["person_in_charge"],
                                                   assistant = current_record_data["assistant"],
                                                   creator = current_record_data["creator"],
-                                                   editor = session["username"] )
+                                                  editor = session["username"],
+                                                  )
     
     data = request.form
     record.username = data.get('username')
@@ -308,6 +309,24 @@ def edit_record(code):
     record.interaction_result = data.get('interaction_result')
     record.assistant = data.get('assistant')
     record.recent_changed_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    # new_record_history.change_log = jsonify({
+    # Compare the values of the record object and the new_record_history object
+    change_log = {}
+    for column in Customers.__table__.columns:
+        column_name = column.name
+        record_value = getattr(record, column_name)
+        try:
+            history_value = getattr(new_record_history, column_name)
+        except AttributeError:
+            continue
+
+        if record_value != history_value:
+            try:
+                change_log[column_name] = history_value + ',' +  record_value
+            except TypeError:
+                change_log[column_name] = str(history_value) + ',' +  str(record_value)
+
+        new_record_history.change_log = change_log
     db.session.add(new_record_history)
     db.session.commit()
     return jsonify({

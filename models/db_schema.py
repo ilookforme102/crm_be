@@ -153,6 +153,8 @@ class Customer_Record_History(db.Model):
     assistant = db.Column(db.String(255), nullable = True)
     creator = db.Column(db.String(255),nullable = True)
     editor =  db.Column(db.String(255), nullable = True)
+    change_log = db.Column(db.JSON, nullable=True)
+    
     def __repr__(self):
         return self.created_at
 class Tool_Category(db.Model):
