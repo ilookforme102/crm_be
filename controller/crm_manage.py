@@ -127,7 +127,7 @@ def get_records():
     if is_edited == 'false':
         customers =  query.order_by(Customers.filled_date.desc()).all()
     if is_edited == 'true':
-        customers = query.order_by(Customers.recent_changed_at.desc()).all()
+        customers = query.order_by(Customers.recent_changed_at.desc(),Customers.filled_date.desc()).all()
     print(query.statement)
     customer_data = [{'code':customer.code, 'username':customer.username,'note':customer.note,'code_origin':customer.code_origin,'phone_number':customer.phone_number,'category':customer.category,'bo_code':customer.bo_code,'contact_note':customer.contact_note,'call_note':customer.call_note,'zalo_note':customer.zalo_note,'tele_note':customer.tele_note,'sms_note':customer.sms_note,'social_note':customer.social_note,'interaction_content':customer.interaction_content,'interaction_result':customer.interaction_result,'person_in_charge':customer.person_in_charge,'filled_date': customer.filled_date,'recent_changed_at':customer.recent_changed_at,'assistant':customer.assistant,'creator':customer.creator} for customer in customers]
     paginated_data = customer_data[start_index:end_index]
@@ -412,7 +412,8 @@ def get_record_history(code):
                             'interaction_result' : history_record.interaction_result,
                             'assistant' : history_record.assistant,
                             'creator': history_record.creator,
-                            'editor': history_record.editor
+                            'editor': history_record.editor,
+                            'change_log': history_record.change_log
                            } for history_record in history_records]
     return jsonify({
         'current_record': current_record_data,
