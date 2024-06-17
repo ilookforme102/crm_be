@@ -326,8 +326,12 @@ def edit_record(code):
             # except TypeError:
             change_log[column_name] = str(history_value) + ',' +  str(record_value)
         new_record_history.change_log = change_log
-    db.session.add(new_record_history)
-    db.session.commit()
+    if change_log:
+        db.session.add(new_record_history)
+        db.session.commit()
+    else:
+        return jsonify({'message': 'No changes made to the record'}), 200
+    
     return jsonify({
         'message': 'New record for {} updated successfully'.format(record.code),
         'record': {
