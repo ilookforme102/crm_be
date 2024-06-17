@@ -7,10 +7,10 @@ from datetime import datetime, timedelta
 app = Flask(__name__)
 app.secret_key = 'f33924fea4dd7123a0daa9d2a7213679'
 # Replace the following values with your database connection details
-db_username = 'crm_test'
-db_password = 'Lhzxc7PKwN7wEJXF'
+db_username = 'crm'#'crm_test'
+db_password = 'LSciYCtCK7tZXAxL'#Lhzxc7PKwN7wEJXF'
 db_host = '23.226.8.83'
-db_database = 'crm_test'
+db_database = 'crm' # 'crm_test'
 db_port = 3306
 app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{db_username}:{db_password}@{db_host}/{db_database}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
