@@ -326,7 +326,7 @@ def edit_record(code):
             # except TypeError:
             change_log[column_name] = str(history_value) + ',' +  str(record_value)
         new_record_history.change_log = change_log
-    if change_log:
+    if new_record_history.change_log:
         db.session.add(new_record_history)
         db.session.commit()
         return jsonify({
@@ -353,8 +353,10 @@ def edit_record(code):
         }
     }), 200
     else:
-        return jsonify({'error': 'No changes made to the record'}), 304
+        return jsonify({'error': 'No changes made to the record'}),304
     
+    
+
 #######Delete record#############
 @crm_bp.route('/record/<string:code>',methods = ['DELETE', 'OPTIONS'])
 def remove_record(code):
