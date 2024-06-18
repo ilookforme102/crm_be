@@ -422,6 +422,8 @@ def get_pic_result():
     start_date = data.get('start_date',"2020-01-01")
     end_date_default = datetime.now().strftime('%Y-%m-%d')
     end_date = data.get('end_date',end_date_default)
+    pic = data.get('person_in_charge', None)
+    list_pic = [i for i in pic.split(',')]
     query = Customers.query
     results = query.with_entities(
         Customers.person_in_charge.label('pic'),
@@ -431,7 +433,8 @@ def get_pic_result():
     ).filter(
         and_(
             Customers.filled_date <= end_date,
-            Customers.filled_date >=  start_date
+            Customers.filled_date >=  start_date,
+            Customers.person_in_charge.in_(list_pic)
         )
     ).group_by(
         Customers.person_in_charge,
