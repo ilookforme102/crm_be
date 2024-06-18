@@ -476,6 +476,8 @@ def get_category_date_stats():
     attr1 = data.get('attr1', None)
     attr2 = data.get('attr2', None)
     attr2_sub = data.get('attr2_sub', None)
+    pic = data.get('person_in_charge', None)
+    list_pic = [i for i in pic.split(',')]
     query = Customers.query
     query  = query.with_entities(
         # func.date(Customers.__dict__['filled_date']).label('date'),
@@ -486,6 +488,7 @@ def get_category_date_stats():
         and_(
             Customers.filled_date <= end_date,
             Customers.filled_date >= start_date,
+            Customers.person_in_charge.in_(list_pic)
         ))
     if attr2 and attr2_sub:
         query = query.filter( Customers.__dict__[attr2] == attr2_sub)
