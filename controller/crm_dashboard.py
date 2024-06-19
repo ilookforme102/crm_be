@@ -131,12 +131,18 @@ def get_customer_per_member():
     )
     if pic: # and Customers.query.filter(Customers.person_in_charge == pic):
         if pic != 'all':
-            list_pic = [i for i in pic.split(',')]
-            results  = results1.filter(and_(
-                Customers.filled_date >= start_date,
-                Customers.filled_date <= end_date,
-                Customers.person_in_charge.in_(list_pic)
-            )).all()
+            list_pic = [i for i in pic.split(',')] if pic else None
+            if list_pic:
+                results  = results1.filter(and_(
+                    Customers.filled_date >= start_date,
+                    Customers.filled_date <= end_date,
+                    Customers.person_in_charge.in_(list_pic)
+                )).all()
+            else:
+                results  = results1.filter(and_(
+                    Customers.filled_date >= start_date,
+                    Customers.filled_date <= end_date
+                )).all()
             data = [
                 {
                     'date': result.date.isoformat() if result.date else None,
@@ -423,20 +429,30 @@ def get_pic_result():
     end_date_default = datetime.now().strftime('%Y-%m-%d')
     end_date = data.get('end_date',end_date_default)
     pic = data.get('person_in_charge', None)
-    list_pic = [i for i in pic.split(',')]
+    list_pic = [i for i in pic.split(',')] if pic else None
+
     query = Customers.query
-    results = query.with_entities(
+    query = query.with_entities(
         Customers.person_in_charge.label('pic'),
         Customers.interaction_result.label('result'),
         func.count(Customers.code).label('total_customers')
-        
-    ).filter(
-        and_(
-            Customers.filled_date <= end_date,
-            Customers.filled_date >=  start_date,
-            Customers.person_in_charge.in_(list_pic)
+    )
+    if list_pic:
+        query =  query.filter(
+            and_(
+                Customers.filled_date <= end_date,
+                Customers.filled_date >=  start_date,
+                Customers.person_in_charge.in_(list_pic)
+            )
         )
-    ).group_by(
+    else:
+        query =  query.filter(
+            and_(
+                Customers.filled_date <= end_date,
+                Customers.filled_date >=  start_date,
+            )
+        )
+    results = query.group_by(
         Customers.person_in_charge,
         Customers.interaction_result
     ).all()
@@ -480,19 +496,31 @@ def get_category_date_stats():
     attr2 = data.get('attr2', None)
     attr2_sub = data.get('attr2_sub', None)
     pic = data.get('person_in_charge', None)
-    list_pic = [i for i in pic.split(',')]
+    list_pic = [i for i in pic.split(',')] if pic else None
     query = Customers.query
-    query  = query.with_entities(
-        # func.date(Customers.__dict__['filled_date']).label('date'),
-        Customers.__dict__[attr1].label('property'),
-        Customers.__dict__[attr2].label('property2'),
-        func.count(Customers.__dict__[attr1]).label('count')
-    ).filter(
-        and_(
-            Customers.filled_date <= end_date,
-            Customers.filled_date >= start_date,
-            Customers.person_in_charge.in_(list_pic)
-        ))
+    if list_pic:
+        query  = query.with_entities(
+            # func.date(Customers.__dict__['filled_date']).label('date'),
+            Customers.__dict__[attr1].label('property'),
+            Customers.__dict__[attr2].label('property2'),
+            func.count(Customers.__dict__[attr1]).label('count')
+        ).filter(
+            and_(
+                Customers.filled_date <= end_date,
+                Customers.filled_date >= start_date,
+                Customers.person_in_charge.in_(list_pic)
+            ))
+    else:
+        query  = query.with_entities(
+            # func.date(Customers.__dict__['filled_date']).label('date'),
+            Customers.__dict__[attr1].label('property'),
+            Customers.__dict__[attr2].label('property2'),
+            func.count(Customers.__dict__[attr1]).label('count')
+        ).filter(
+            and_(
+                Customers.filled_date <= end_date,
+                Customers.filled_date >= start_date,
+            ))
     if attr2 and attr2_sub:
         query = query.filter( Customers.__dict__[attr2] == attr2_sub)
     results =  query.group_by(
