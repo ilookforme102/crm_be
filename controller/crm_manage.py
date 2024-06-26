@@ -3,7 +3,7 @@ from flask_cors import CORS,cross_origin
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Date,Time,DateTime,asc ,nulls_last, and_,text, func, case, Integer, union,desc, or_
 import datetime
-from datetime import datetime, timedelta, time, timezone
+from datetime import datetime, timedelta, time
 from models.db_schema import User, BO, Category,Contact_Note,Call_Note,Zalo_Note,Tele_Note,SMS_Note,Social_Note,Interaction_Content,Interaction_Result,Customers,Customer_Record_History,Tool_Category,Sim_Mgt,IP_Mgt,Phone_Mgt,Email_Mgt,Zalo_Mgt,Tele_Mgt,Social_Mgt,Session_Mgt
 from models.db_schema import db 
 crm_bp = Blueprint('crm_bp', __name__, url_prefix='/crm')
@@ -118,8 +118,8 @@ def get_records():
             'assistant':Customers.assistant.like(f'%{assistant}%'),
             'creator':Customers.creator.like(f'%{creator}%'),
             'code':Customers.code.like(f'%{code}%'),
-            'start_date_str':  func.date(Customers.filled_date) >= start_date,
-            'end_date_str': func.date(Customers.filled_date) <=end_date
+            'start_date_str':  func.date( Customers.filled_date) >= start_date,
+            'end_date_str': func.date( Customers.filled_date) <=end_date
             #start_date_str':  func.date( func.date_sub( Customers.filled_date, text("INTERVAL '6:10' HOUR_MINUTE"))) >= start_date,
             # 'end_date_str': func.date_add(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE")) <= func.date(end_date)
 
