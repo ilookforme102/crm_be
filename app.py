@@ -3,7 +3,7 @@ from flask_cors import CORS,cross_origin
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Date,Time,DateTime , and_, func, case
 import datetime
-from datetime import datetime, timedelta,time
+from datetime import datetime, timedelta,timezone
 from controller.crm_dashboard import crm_stats
 from controller.crm_manage import crm_bp, get_auto_code,get_auto_any_code
 from models.db_schema import User, BO, Category,Contact_Note,Call_Note,Zalo_Note,Tele_Note,SMS_Note,Social_Note,Interaction_Content,Interaction_Result,Customers,Customer_Record_History,Tool_Category,Sim_Mgt,IP_Mgt,Phone_Mgt,Email_Mgt,Zalo_Mgt,Tele_Mgt,Social_Mgt,Session_Mgt

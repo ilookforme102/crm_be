@@ -3,7 +3,7 @@ from flask_cors import CORS,cross_origin
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Date,Time,DateTime,asc ,nulls_last, and_,text, func, case, Integer, union,desc, or_
 import datetime
-from datetime import datetime, timedelta, time
+from datetime import datetime, timedelta, timezone
 from models.db_schema import User, BO, Category,Contact_Note,Call_Note,Zalo_Note,Tele_Note,SMS_Note,Social_Note,Interaction_Content,Interaction_Result,Customers,Customer_Record_History,Tool_Category,Sim_Mgt,IP_Mgt,Phone_Mgt,Email_Mgt,Zalo_Mgt,Tele_Mgt,Social_Mgt,Session_Mgt
 from models.db_schema import db 
 crm_bp = Blueprint('crm_bp', __name__, url_prefix='/crm')
@@ -12,7 +12,7 @@ crm_bp = Blueprint('crm_bp', __name__, url_prefix='/crm')
 def show_records():
     records = Customers.query.all()
     # user_data = [{'username':user.username, 'role':user.role,'company_id':user.company_id,'nickname':user.company_name,'team':user.team} for user in users]
-    dates = [{'filled_date':record.filled_date ,"end date":(datetime.now().date()-timedelta(days=10)),"Start date":datetime.strptime("2024-04-23", '%Y-%m-%d').date()} for record in records]
+    dates = [{'filled_date':record.filled_date ,"end date":(datetime.now(timezone(timedelta(hours=+2), 'Helsinki')).date()-timedelta(days=10)),"Start date":datetime.strptime("2024-04-23", '%Y-%m-%d').date()} for record in records]
     return dates    
 #Show all record
 @crm_bp.route('/export_data')
@@ -90,14 +90,14 @@ def get_records():
         return jsonify({'error': 'Invalid date format. Use YYYY-MM-DD'}), 400
     except TypeError:
         start_date = datetime.strptime('2000-01-01', '%Y-%m-%d').date()
-        # end_date = datetime.now().date()+ timedelta(days=10)
+        # end_date = datetime.now(timezone(timedelta(hours=+2), 'Helsinki')).date()+ timedelta(days=10)
     try:
         # Parse the date string into a date object
         end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
     except ValueError:
         return jsonify({'error': 'Invalid date format. Use YYYY-MM-DD'}), 400
     except TypeError:
-        end_date = datetime.now().date()+ timedelta(days=10)
+        end_date = datetime.now(timezone(timedelta(hours=+2), 'Helsinki')).date()+ timedelta(days=10)
     # Query the database for customers matching the username and date
     param_mapping = {
             'username': Customers.username.like(f'%{username}%'),
@@ -118,9 +118,9 @@ def get_records():
             'assistant':Customers.assistant.like(f'%{assistant}%'),
             'creator':Customers.creator.like(f'%{creator}%'),
             'code':Customers.code.like(f'%{code}%'),
-            'start_date_str':  func.date( func.date_sub(Customers.filled_date, text("INTERVAL '6:10' HOUR_MINUTE"))) >= start_date,
-            'end_date_str': func.date( func.date_sub(Customers.filled_date, text("INTERVAL '6:10' HOUR_MINUTE"))) <=end_date
-            # 'start_date_str':  func.date_add(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE")) >= func.date(start_date),
+            'start_date_str':  func.date(Customers.filled_date) >= start_date,
+            'end_date_str': func.date(Customers.filled_date) <=end_date
+            #start_date_str':  func.date( func.date_sub( Customers.filled_date, text("INTERVAL '6:10' HOUR_MINUTE"))) >= start_date,
             # 'end_date_str': func.date_add(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE")) <= func.date(end_date)
 
     }
@@ -150,7 +150,7 @@ def get_code():
     return code
 def get_auto_code_2(db,**kwargs):
     prefix = kwargs.get('prefix', '')
-    today_str = datetime.now().strftime('%y%m%d')
+    today_str = datetime.now(timezone(timedelta(hours=+2), 'Helsinki')).strftime('%y%m%d')
     count = db.query.count() 
     index_ = count + 1
     code = prefix+today_str+'-'+str(index_)
@@ -160,7 +160,7 @@ def get_auto_code_2(db,**kwargs):
     return code
 def get_auto_code(db, **kwargs):
     prefix = kwargs.get('prefix', '')
-    today_str = datetime.now().strftime('%y%m%d')
+    today_str = datetime.now(timezone(timedelta(hours=+2), 'Helsinki')).strftime('%y%m%d')
     count = db.query.with_entities(func.max(func.cast(func.substring_index(db.code,'-',-1), Integer))).scalar()
     if count:
         count = int(count)
@@ -175,7 +175,7 @@ def get_auto_code(db, **kwargs):
     return code
 def get_auto_sim_code(db, **kwargs):
     prefix = kwargs.get('prefix', '')
-    today_str = datetime.now().strftime('%y%m%d')
+    today_str = datetime.now(timezone(timedelta(hours=+2), 'Helsinki')).strftime('%y%m%d')
     count = db.query.with_entities(func.max(func.cast(func.substring_index(db.sim_code,'-',-1), Integer))).scalar()
     if count:
         count = int(count)
@@ -187,7 +187,7 @@ def get_auto_sim_code(db, **kwargs):
     return code
 def get_auto_any_code(db,attr, **kwargs):
     prefix = kwargs.get('prefix', '')
-    today_str = datetime.now().strftime('%y%m%d')
+    today_str = datetime.now(timezone(timedelta(hours=+2), 'Helsinki')).strftime('%y%m%d')
     count = db.query.with_entities(func.max(func.cast(func.substring_index(db.__dict__[attr],'-',-1), Integer))).scalar()
     if count:
         count = int(count)
@@ -217,7 +217,7 @@ def add_record():
     person_in_charge = session['username']
     interaction_content = data.get('interaction_content')
     interaction_result = data.get('interaction_result')
-    filled_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    filled_date = datetime.now(timezone(timedelta(hours=+2), 'Helsinki')).strftime("%Y-%m-%d %H:%M:%S")
     # assistant = ''
     creator = session['username']
     code = get_code()#data.get('code')
@@ -272,7 +272,7 @@ def edit_record(code):
         "editor" :session["username"]
     }
     new_record_history = Customer_Record_History(filled_date = current_record_data["filled_date"],
-                                                  created_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 
+                                                  created_at = datetime.now(timezone(timedelta(hours=+2), 'Helsinki')).strftime("%Y-%m-%d %H:%M:%S"), 
                                                   code= code, 
                                                   username=current_record_data["username"],
                                                   note=current_record_data["note"],
@@ -311,7 +311,7 @@ def edit_record(code):
     record.interaction_content = data.get('interaction_content')
     record.interaction_result = data.get('interaction_result')
     record.assistant = data.get('assistant')
-    record.recent_changed_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    record.recent_changed_at = datetime.now(timezone(timedelta(hours=+2), 'Helsinki')).strftime("%Y-%m-%d %H:%M:%S")
     # new_record_history.change_log = jsonify({
     # Compare the values of the record object and the new_record_history object
     change_log = {}
@@ -453,7 +453,7 @@ def add_history():
     editor = data.get('editor')
     creator = data.get('creator')
     new_history = Customer_Record_History(filled_date = filled_date,
-                                        created_at =  datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 
+                                        created_at =  datetime.now(timezone(timedelta(hours=+2), 'Helsinki')).strftime("%Y-%m-%d %H:%M:%S"), 
                                         code= code, 
                                         username=username,
                                         note=note,
