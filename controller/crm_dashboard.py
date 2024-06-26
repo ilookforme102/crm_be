@@ -23,7 +23,7 @@ crm_stats = Blueprint('crm_stats', __name__, url_prefix='/crm/stats')
 def key_metrics():
     data = request.args
     start_date = data.get('start_date',"2020-01-01")
-    end_date_default = datetime.now(timezone(timedelta(hours=+2), 'Helsinki')).strftime('%Y-%m-%d')
+    end_date_default = datetime.now().strftime('%Y-%m-%d')
     end_date = data.get('end_date',end_date_default)
     query = Customers.query
     if start_date and end_date:
@@ -91,7 +91,7 @@ def calculate_percentage(data):
 def get_depositor_result():
     data  =  request.args
     start_date = data.get('start_date',"2020-01-01")
-    end_date_default = datetime.now(timezone(timedelta(hours=+2), 'Helsinki')).strftime('%Y-%m-%d')
+    end_date_default = datetime.now().strftime('%Y-%m-%d')
     end_date = data.get('end_date',end_date_default)
     query = Customers.query
     results =  query.with_entities(
@@ -117,7 +117,7 @@ def get_depositor_result():
 def get_customer_per_member():
     data = request.args
     start_date = data.get('start_date',"2020-01-01")
-    end_date_default = datetime.now(timezone(timedelta(hours=+2), 'Helsinki')).strftime('%Y-%m-%d')
+    end_date_default = datetime.now().strftime('%Y-%m-%d')
     end_date = data.get('end_date',end_date_default)
     pic = data.get('person_in_charge')
     query = Customers.query
@@ -212,7 +212,7 @@ def get_customer_per_member():
 # def get_customer_per_member():
 #     data = request.args
 #     start_date = data.get('start_date',"2020-01-01")
-#     end_date_default = datetime.now(timezone(timedelta(hours=+2), 'Helsinki')).strftime('%Y-%m-%d')
+#     end_date_default = datetime.now().strftime('%Y-%m-%d')
 #     end_date = data.get('end_date',end_date_default)
 #     pic = data.get('person_in_charge')
 #     query = Customers.query
@@ -311,7 +311,7 @@ def get_depositor_each():
     # # }
     data = request.args
     start_date = data.get('start_date',"2020-01-01")
-    end_date_default = datetime.now(timezone(timedelta(hours=+2), 'Helsinki')).strftime('%Y-%m-%d')
+    end_date_default = datetime.now().strftime('%Y-%m-%d')
     end_date = data.get('end_date',end_date_default)
     query = Customers.query
     results = query.with_entities(
@@ -342,7 +342,7 @@ def get_depositor_each():
 def active_customer_for_category():
     data = request.args
     start_date = data.get('start_date',"2020-01-01")
-    end_date_default = datetime.now(timezone(timedelta(hours=+2), 'Helsinki')).strftime('%Y-%m-%d')
+    end_date_default = datetime.now().strftime('%Y-%m-%d')
     end_date = data.get('end_date',end_date_default)
     query = Customers.query
     results = query.with_entities(
@@ -375,7 +375,7 @@ def active_customer_for_category():
 def get_customer_pic_result():
     data = request.args
     start_date = data.get('start_date',"2020-01-01")
-    end_date_default = datetime.now(timezone(timedelta(hours=+2), 'Helsinki')).strftime('%Y-%m-%d')
+    end_date_default = datetime.now().strftime('%Y-%m-%d')
     end_date = data.get('end_date',end_date_default)
     query = Customers.query
     results = query.with_entities(
@@ -404,7 +404,7 @@ def get_customer_pic_result():
 def get_customer_date():
     data  = request.args
     start_date = data.get('start_date',"2020-01-01")
-    end_date_default = datetime.now(timezone(timedelta(hours=+2), 'Helsinki')).strftime('%Y-%m-%d')
+    end_date_default = datetime.now().strftime('%Y-%m-%d')
     end_date = data.get('end_date',end_date_default)
     query = Customers.query
     results = query.with_entities(
@@ -426,7 +426,7 @@ def get_customer_date():
 def get_pic_result():
     data = request.args
     start_date = data.get('start_date',"2020-01-01")
-    end_date_default = datetime.now(timezone(timedelta(hours=+2), 'Helsinki')).strftime('%Y-%m-%d')
+    end_date_default = datetime.now().strftime('%Y-%m-%d')
     end_date = data.get('end_date',end_date_default)
     pic = data.get('person_in_charge', None)
     list_pic = [i for i in pic.split(',')] if pic else None
@@ -466,7 +466,7 @@ def get_pic_result():
 def get_property_date_stats():
     data = request.args
     start_date = data.get('start_date',"2020-01-01")
-    end_date_default = datetime.now(timezone(timedelta(hours=+2), 'Helsinki')).strftime('%Y-%m-%d')
+    end_date_default = datetime.now().strftime('%Y-%m-%d')
     end_date = data.get('end_date',end_date_default)
     attr = data.get('property')
     query  = Customers.query
@@ -490,7 +490,7 @@ def get_property_date_stats():
 def get_category_date_stats():
     data = request.args
     start_date = data.get('start_date',"2020-01-01")
-    end_date_default = datetime.now(timezone(timedelta(hours=+2), 'Helsinki')).strftime('%Y-%m-%d')
+    end_date_default = datetime.now().strftime('%Y-%m-%d')
     end_date = data.get('end_date',end_date_default)
     attr1 = data.get('attr1', None)
     attr2 = data.get('attr2', None)
@@ -539,8 +539,8 @@ def get_category_date_stats():
 @crm_stats.route('/charts/daily_tracking_category') # Bang theo do so lieu moi ngay category/date
 def get_daily_customer():
     data = request.args
-    first_day_this_month = datetime.now(timezone(timedelta(hours=+2), 'Helsinki')).replace(day =1).strftime('%Y-%m-%d')
-    current_date = datetime.now(timezone(timedelta(hours=+2), 'Helsinki'))
+    first_day_this_month = datetime.now().replace(day =1).strftime('%Y-%m-%d')
+    current_date = datetime.now()
     if current_date.month == 12:
         first_day_next_month = datetime(current_date.year + 1, 1,1)
     else:
@@ -638,7 +638,7 @@ def get_dataa():
 def get_customer_by_username():
     person_in_charge = session['username']
     data = request.args
-    current_year = data.get('year',str(datetime.now(timezone(timedelta(hours=+2), 'Helsinki')).year) )
+    current_year = data.get('year',str(datetime.now().year) )
     results = db.session.query(
         Customers.person_in_charge.label('pic'),
         func.date(Customers.filled_date).label('date'),
@@ -670,9 +670,9 @@ def get_year():
 def show_dashboard():
         
     # Get the current time in New York timezone
-    new_time_zone = datetime.now(timezone(timedelta(hours=+2), 'Helsinki'))
+    new_time_zone = datetime.now().date()
     return new_time_zone
 
     # Example usage
-    # return jsonify({'gmt+2':new_time_zone.date(), 'phil':datetime.now(timezone(timedelta(hours=+2), 'Helsinki'))})
+    # return jsonify({'gmt+2':new_time_zone.date(), 'phil':datetime.now()})
 # datetime(2023, 1, 1, 10, 0, 0, tzinfo=timezone(timedelta(hours=10)))
