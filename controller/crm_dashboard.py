@@ -671,7 +671,7 @@ def show_dashboard():
         
     # Get the current time in New York timezone
     new_time_zone = datetime.now(timezone(timedelta(hours=+2), 'Helsinki'))
-    return new_time_zone.strftime('%Y-%m-%d %H:%M:%S')
+    return new_time_zone
 
     # Example usage
     # return jsonify({'gmt+2':new_time_zone.date(), 'phil':datetime.now(timezone(timedelta(hours=+2), 'Helsinki'))})
