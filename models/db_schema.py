@@ -7,10 +7,10 @@ from datetime import datetime, timedelta
 app = Flask(__name__)
 app.secret_key = 'f33924fea4dd7123a0daa9d2a7213679'
 # Replace the following values with your database connection details
-db_username = 'crm'#'crm_test' #
-db_password = 'LSciYCtCK7tZXAxL'#'Lhzxc7PKwN7wEJXF'#
+db_username = 'crm_test' #'crm'#
+db_password = 'Lhzxc7PKwN7wEJXF'#'LSciYCtCK7tZXAxL'#
 db_host = '23.226.8.83'
-db_database = 'crm' # 'crm_test'#
+db_database = 'crm_test'#'crm' # 
 db_port = 3306
 app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{db_username}:{db_password}@{db_host}/{db_database}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -124,6 +124,7 @@ class Customers(db.Model):
     interaction_result = db.Column(db.String(255), nullable = True)
     person_in_charge = db.Column(db.String(255), nullable = True)
     filled_date = db.Column(DateTime, nullable = True)
+    bo_root_date = db.Column(DateTime, nullable = True)
     recent_changed_at = db.Column(DateTime, nullable = True)
     assistant = db.Column(db.String(255),nullable = True)
     creator =  db.Column(db.String(255), nullable = True)
@@ -133,6 +134,7 @@ class Customer_Record_History(db.Model):
     __tablename__ = 'db_vn168_crm_record_history'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     filled_date = db.Column(DateTime, nullable = True)
+    bo_root_date = db.Column(DateTime, nullable = True)
     created_at = db.Column(DateTime,  nullable=True)
     code = db.Column(db.String(255),  nullable = True)
     username = db.Column(db.String(255), nullable = True)
