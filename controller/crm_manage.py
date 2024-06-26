@@ -41,8 +41,8 @@ def export_data():
             return jsonify(data)
         results = db.session.query(*valid_fields).filter(
             and_(
-                Customers.filled_date >= start_date_str,
-                Customers.filled_date <= end_date_str
+                func.date(Customers.filled_date) >= start_date_str,
+                func.date(Customers.filled_date) <= end_date_str
             )
         ).order_by(Customers.filled_date.desc()).all()
         for result in results:
@@ -118,8 +118,8 @@ def get_records():
             'assistant':Customers.assistant.like(f'%{assistant}%'),
             'creator':Customers.creator.like(f'%{creator}%'),
             'code':Customers.code.like(f'%{code}%'),
-            'end_date_str':Customers.filled_date <= end_date,
-            'start_date_str':Customers.filled_date >= start_date
+            'end_date_str':func.date(Customers.filled_date) <= end_date,
+            'start_date_str':func.date(Customers.filled_date) >= start_date
     }
     for key, value in param_mapping.items():
         if key in data:
