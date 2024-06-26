@@ -28,8 +28,8 @@ def key_metrics():
     query = Customers.query
     if start_date and end_date:
         query = query.filter(and_(
-            func.date( func.date_sub(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE"))) >= datetime.strptime(start_date, '%Y-%m-%d'),
-            func.date( func.date_sub(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE"))) <= datetime.strptime(end_date, '%Y-%m-%d')
+            func.date( func.date_sub(Customers.filled_date, text("INTERVAL '6:10' HOUR_MINUTE"))) >= datetime.strptime(start_date, '%Y-%m-%d'),
+            func.date( func.date_sub(Customers.filled_date, text("INTERVAL '6:10' HOUR_MINUTE"))) <= datetime.strptime(end_date, '%Y-%m-%d')
         ))
     customers = query.count()
     seo_customers = query.filter(Customers.category == 'SEO Data').count()
@@ -99,8 +99,8 @@ def get_depositor_result():
         func.count(Customers.interaction_result).label('count')
         ).filter(and_(
             Customers.interaction_result.in_(['Khách SEO Tự Nạp Tiền','Khách CRM Nạp Tiền']),
-            func.date( func.date_sub(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE"))) >= start_date,
-            func.date( func.date_sub(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE"))) <= end_date)).group_by(
+            func.date( func.date_sub(Customers.filled_date, text("INTERVAL '6:10' HOUR_MINUTE"))) >= start_date,
+            func.date( func.date_sub(Customers.filled_date, text("INTERVAL '6:10' HOUR_MINUTE"))) <= end_date)).group_by(
             Customers.interaction_result
         ).all()
     result_dict = [{'category': result.interaction_result,'count': result.count} for result in results]
@@ -134,14 +134,14 @@ def get_customer_per_member():
             list_pic = [i for i in pic.split(',')] if pic else None
             if list_pic:
                 results  = results1.filter(and_(
-                    func.date( func.date_sub(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE")))>= start_date,
-                    func.date( func.date_sub(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE"))) <= end_date,
+                    func.date( func.date_sub(Customers.filled_date, text("INTERVAL '6:10' HOUR_MINUTE")))>= start_date,
+                    func.date( func.date_sub(Customers.filled_date, text("INTERVAL '6:10' HOUR_MINUTE"))) <= end_date,
                     Customers.person_in_charge.in_(list_pic)
                 )).all()
             else:
                 results  = results1.filter(and_(
-                    func.date( func.date_sub(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE")))>= start_date,
-                    func.date( func.date_sub(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE")))<= end_date
+                    func.date( func.date_sub(Customers.filled_date, text("INTERVAL '6:10' HOUR_MINUTE")))>= start_date,
+                    func.date( func.date_sub(Customers.filled_date, text("INTERVAL '6:10' HOUR_MINUTE")))<= end_date
                 )).all()
             data = [
                 {
@@ -164,8 +164,8 @@ def get_customer_per_member():
 
         if pic == 'all':
             results  = results1.filter(and_(
-                func.date( func.date_sub(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE"))) >= start_date,
-                func.date( func.date_sub(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE"))) <= end_date
+                func.date( func.date_sub(Customers.filled_date, text("INTERVAL '6:10' HOUR_MINUTE"))) >= start_date,
+                func.date( func.date_sub(Customers.filled_date, text("INTERVAL '6:10' HOUR_MINUTE"))) <= end_date
             )).all()
             data = [
                 {
@@ -187,8 +187,8 @@ def get_customer_per_member():
             return jsonify(grouped_data )
     else:
         results  = results1.filter(and_(
-            func.date( func.date_sub(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE"))) >= start_date,
-            func.date( func.date_sub(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE"))) <= end_date
+            func.date( func.date_sub(Customers.filled_date, text("INTERVAL '6:10' HOUR_MINUTE"))) >= start_date,
+            func.date( func.date_sub(Customers.filled_date, text("INTERVAL '6:10' HOUR_MINUTE"))) <= end_date
         )).all()
         data = [
             {
@@ -319,8 +319,8 @@ def get_depositor_each():
         Customers.person_in_charge,
     ).filter(and_(
         Customers.interaction_result.in_(['Khách SEO Tự Nạp Tiền','Khách CRM Nạp Tiền']),
-        func.date( func.date_sub(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE"))) >= start_date,
-        func.date( func.date_sub(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE"))) <= end_date
+        func.date( func.date_sub(Customers.filled_date, text("INTERVAL '6:10' HOUR_MINUTE"))) >= start_date,
+        func.date( func.date_sub(Customers.filled_date, text("INTERVAL '6:10' HOUR_MINUTE"))) <= end_date
                   )).group_by(
         Customers.person_in_charge).all()
     query_data = [
@@ -352,8 +352,8 @@ def active_customer_for_category():
         Customers.interaction_result,
         func.count(Customers.interaction_result).label('result_count')
     ).filter(and_(
-        func.date( func.date_sub(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE"))) >= start_date,
-        func.date( func.date_sub(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE"))) <= end_date
+        func.date( func.date_sub(Customers.filled_date, text("INTERVAL '6:10' HOUR_MINUTE"))) >= start_date,
+        func.date( func.date_sub(Customers.filled_date, text("INTERVAL '6:10' HOUR_MINUTE"))) <= end_date
                   )).group_by(
         'new_category',
         Customers.interaction_result
@@ -384,8 +384,8 @@ def get_customer_pic_result():
         func.count(Customers.code).label('result_count')
     ).filter(
         and_(
-            func.date( func.date_sub(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE"))) <= end_date,
-            func.date( func.date_sub(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE"))) >= start_date
+            func.date( func.date_sub(Customers.filled_date, text("INTERVAL '6:10' HOUR_MINUTE"))) <= end_date,
+            func.date( func.date_sub(Customers.filled_date, text("INTERVAL '6:10' HOUR_MINUTE"))) >= start_date
         )
     ).group_by(
         Customers.person_in_charge,
@@ -413,8 +413,8 @@ def get_customer_date():
 
     ).filter(
         and_(
-            func.date( func.date_sub(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE"))) <= end_date,
-            func.date( func.date_sub(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE"))) >=  start_date
+            func.date( func.date_sub(Customers.filled_date, text("INTERVAL '6:10' HOUR_MINUTE"))) <= end_date,
+            func.date( func.date_sub(Customers.filled_date, text("INTERVAL '6:10' HOUR_MINUTE"))) >=  start_date
         )
     ).group_by(
         func.date(Customers.filled_date)
@@ -440,16 +440,16 @@ def get_pic_result():
     if list_pic:
         query =  query.filter(
             and_(
-                func.date( func.date_sub(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE"))) <= end_date,
-                func.date( func.date_sub(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE"))) >=  start_date,
+                func.date( func.date_sub(Customers.filled_date, text("INTERVAL '6:10' HOUR_MINUTE"))) <= end_date,
+                func.date( func.date_sub(Customers.filled_date, text("INTERVAL '6:10' HOUR_MINUTE"))) >=  start_date,
                 Customers.person_in_charge.in_(list_pic)
             )
         )
     else:
         query =  query.filter(
             and_(
-                func.date( func.date_sub(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE"))) <= end_date,
-                func.date( func.date_sub(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE"))) >=  start_date,
+                func.date( func.date_sub(Customers.filled_date, text("INTERVAL '6:10' HOUR_MINUTE"))) <= end_date,
+                func.date( func.date_sub(Customers.filled_date, text("INTERVAL '6:10' HOUR_MINUTE"))) >=  start_date,
             )
         )
     results = query.group_by(
@@ -476,8 +476,8 @@ def get_property_date_stats():
         func.count(Customers.__dict__[attr]).label('count')
     ).filter(
         and_(
-            func.date( func.date_sub(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE"))) <= end_date,
-            func.date( func.date_sub(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE"))) >= start_date,
+            func.date( func.date_sub(Customers.filled_date, text("INTERVAL '6:10' HOUR_MINUTE"))) <= end_date,
+            func.date( func.date_sub(Customers.filled_date, text("INTERVAL '6:10' HOUR_MINUTE"))) >= start_date,
         )
     ).group_by(
             func.date(Customers.filled_date),
@@ -506,8 +506,8 @@ def get_category_date_stats():
             func.count(Customers.__dict__[attr1]).label('count')
         ).filter(
             and_(
-                func.date( func.date_sub(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE"))) <= end_date,
-                func.date( func.date_sub(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE"))) >= start_date,
+                func.date( func.date_sub(Customers.filled_date, text("INTERVAL '6:10' HOUR_MINUTE"))) <= end_date,
+                func.date( func.date_sub(Customers.filled_date, text("INTERVAL '6:10' HOUR_MINUTE"))) >= start_date,
                 Customers.person_in_charge.in_(list_pic)
             ))
     else:
@@ -518,8 +518,8 @@ def get_category_date_stats():
             func.count(Customers.__dict__[attr1]).label('count')
         ).filter(
             and_(
-                func.date( func.date_sub(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE"))) <= end_date,
-                func.date( func.date_sub(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE"))) >= start_date,
+                func.date( func.date_sub(Customers.filled_date, text("INTERVAL '6:10' HOUR_MINUTE"))) <= end_date,
+                func.date( func.date_sub(Customers.filled_date, text("INTERVAL '6:10' HOUR_MINUTE"))) >= start_date,
             ))
     if attr2 and attr2_sub:
         query = query.filter( Customers.__dict__[attr2] == attr2_sub)
@@ -551,8 +551,8 @@ def get_daily_customer():
     # cross_join_query = db.session.query(Category, DateTable).join(DateTable, isouter=True)
     sub_query = db.session.query(func.date(Customers.filled_date).label('date')).filter(
         and_(
-            func.date( func.date_sub(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE"))) >= start_date,
-            func.date( func.date_sub(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE"))) <= end_date
+            func.date( func.date_sub(Customers.filled_date, text("INTERVAL '6:10' HOUR_MINUTE"))) >= start_date,
+            func.date( func.date_sub(Customers.filled_date, text("INTERVAL '6:10' HOUR_MINUTE"))) <= end_date
         )
     ).distinct().subquery()
     # sub_query2 = db.session.query (func.count(Category.category).label('count')).subquery()
