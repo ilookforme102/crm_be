@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request, session, make_response,redirect, url_for,Blueprint
 from flask_cors import CORS,cross_origin
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Date,Time,DateTime,asc ,nulls_last, and_, func, case, Integer, union,desc, or_
+from sqlalchemy import Date,Time,DateTime,asc ,nulls_last, and_,text, func, case, Integer, union,desc, or_
 import datetime
 from datetime import datetime, timedelta, time
 from models.db_schema import User, BO, Category,Contact_Note,Call_Note,Zalo_Note,Tele_Note,SMS_Note,Social_Note,Interaction_Content,Interaction_Result,Customers,Customer_Record_History,Tool_Category,Sim_Mgt,IP_Mgt,Phone_Mgt,Email_Mgt,Zalo_Mgt,Tele_Mgt,Social_Mgt,Session_Mgt
@@ -41,8 +41,8 @@ def export_data():
             return jsonify(data)
         results = db.session.query(*valid_fields).filter(
             and_(
-                func.date(Customers.filled_date) >= start_date_str,
-                func.date(Customers.filled_date) <= end_date_str
+                func.date( func.date_sub(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE"))) >= start_date_str,
+                func.date( func.date_sub(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE"))) <= end_date_str
             )
         ).order_by(Customers.filled_date.desc()).all()
         for result in results:
@@ -118,8 +118,11 @@ def get_records():
             'assistant':Customers.assistant.like(f'%{assistant}%'),
             'creator':Customers.creator.like(f'%{creator}%'),
             'code':Customers.code.like(f'%{code}%'),
-            'end_date_str':func.date(Customers.filled_date) <= end_date,
-            'start_date_str':func.date(Customers.filled_date) >= start_date
+            'start_date_str':  func.date( func.date_sub(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE"))) >= start_date,
+            'end_date_str': func.date( func.date_sub(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE"))) <= end_date
+            # 'start_date_str':  func.date_add(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE")) >= func.date(start_date),
+            # 'end_date_str': func.date_add(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE")) <= func.date(end_date)
+
     }
     for key, value in param_mapping.items():
         if key in data:
@@ -132,9 +135,9 @@ def get_records():
     customer_data = [{'code':customer.code, 'username':customer.username,'note':customer.note,'code_origin':customer.code_origin,'phone_number':customer.phone_number,'category':customer.category,'bo_code':customer.bo_code,'contact_note':customer.contact_note,'call_note':customer.call_note,'zalo_note':customer.zalo_note,'tele_note':customer.tele_note,'sms_note':customer.sms_note,'social_note':customer.social_note,'interaction_content':customer.interaction_content,'interaction_result':customer.interaction_result,'person_in_charge':customer.person_in_charge,'filled_date': customer.filled_date,'recent_changed_at':customer.recent_changed_at,'assistant':customer.assistant,'creator':customer.creator} for customer in customers]
     paginated_data = customer_data[start_index:end_index]
     paginated_data = customer_data[start_index:end_index]
-
+    # data = [{"filled_date":customer.filled_date}    for customer in customers]
     return jsonify({'items': paginated_data, 'page': page, 'per_page': per_page, 'total_items': len(customer_data)})
-
+    # return jsonify({'items':data,'size':len(data)})
 ################################################
 ##Save new record of customer to the Customer table
 
