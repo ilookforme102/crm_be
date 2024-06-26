@@ -5,7 +5,7 @@ from flask_cors import CORS,cross_origin
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import select
-import pytz
+# import pytz
 from sqlalchemy import Date,Time,DateTime , and_, func, case,distinct, text
 import datetime
 from datetime import datetime, timedelta, timezone
@@ -666,13 +666,13 @@ def get_year():
     ).all()
     data = [result.year for result in results]
     return jsonify(data)
-@crm_stats.route('/test')
-def show_dashboard():
+# @crm_stats.route('/test')
+# def show_dashboard():
         
-    # Get the current time in New York timezone
-    new_time_zone = datetime.now(pytz.timezone('Europe/Helsinki'))
+#     # Get the current time in New York timezone
+#     # new_time_zone = datetime.now(pytz.timezone('Europe/Helsinki'))
     
-    #try to convert to another timezone
-    # Example usage
-    return jsonify({'gmt+2':new_time_zone.hour, 'phil':datetime.now()})
+#     #try to convert to another timezone
+#     # Example usage
+#     return jsonify({'gmt+2':new_time_zone.hour, 'phil':datetime.now()})
 # datetime(2023, 1, 1, 10, 0, 0, tzinfo=timezone(timedelta(hours=10)))
