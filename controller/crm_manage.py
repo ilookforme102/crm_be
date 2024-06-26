@@ -41,8 +41,8 @@ def export_data():
             return jsonify(data)
         results = db.session.query(*valid_fields).filter(
             and_(
-                func.date( func.date_sub(Customers.filled_date, text("INTERVAL '6:10' HOUR_MINUTE"))) >= start_date_str,
-                func.date( func.date_sub(Customers.filled_date, text("INTERVAL '6:10' HOUR_MINUTE"))) <= end_date_str
+                func.date( func.date_sub(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE"))) >= start_date_str,
+                func.date( func.date_sub(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE"))) <= end_date_str
             )
         ).order_by(Customers.filled_date.desc()).all()
         for result in results:
@@ -119,9 +119,9 @@ def get_records():
             'creator':Customers.creator.like(f'%{creator}%'),
             'code':Customers.code.like(f'%{code}%'),
             'start_date_str':  func.date( func.date_sub(Customers.filled_date, text("INTERVAL '6:10' HOUR_MINUTE"))) >= start_date,
-            'end_date_str': func.date( func.date_sub(Customers.filled_date, text("INTERVAL '6:10' HOUR_MINUTE"))) < end_date
-            # 'start_date_str':  func.date_add(Customers.filled_date, text("INTERVAL '6:10' HOUR_MINUTE")) >= func.date(start_date),
-            # 'end_date_str': func.date_add(Customers.filled_date, text("INTERVAL '6:10' HOUR_MINUTE")) <= func.date(end_date)
+            'end_date_str': func.date( func.date_sub(Customers.filled_date, text("INTERVAL '6:10' HOUR_MINUTE"))) <=end_date
+            # 'start_date_str':  func.date_add(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE")) >= func.date(start_date),
+            # 'end_date_str': func.date_add(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE")) <= func.date(end_date)
 
     }
     for key, value in param_mapping.items():
