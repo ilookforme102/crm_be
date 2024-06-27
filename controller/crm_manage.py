@@ -118,10 +118,10 @@ def get_records():
             'assistant':Customers.assistant.like(f'%{assistant}%'),
             'creator':Customers.creator.like(f'%{creator}%'),
             'code':Customers.code.like(f'%{code}%'),
-            'start_date_str':  func.date( Customers.filled_date) >= start_date,
-            'end_date_str': func.date( Customers.filled_date) <=end_date,
-            'start_bo_root_date': func.date( Customers.bo_root_date) >= start_date,
-            'end_bo_root_date': func.date( Customers.bo_root_date) <=end_date
+            'start_date_str':  func.date( Customers.bo_root_date) >= start_date,
+            'end_date_str': func.date( Customers.bo_root_date) <=end_date,
+            # 'start_bo_root_date': func.date( Customers.bo_root_date) >= start_date,
+            # 'end_bo_root_date': func.date( Customers.bo_root_date) <=end_date
             #start_date_str':  func.date( func.date_sub( Customers.filled_date, text("INTERVAL '6:10' HOUR_MINUTE"))) >= start_date,
             # 'end_date_str': func.date_add(Customers.filled_date, text("INTERVAL '18:10' HOUR_MINUTE")) <= func.date(end_date)
 
@@ -134,7 +134,7 @@ def get_records():
     if is_edited == 'true':
         customers = query.order_by(Customers.recent_changed_at.desc(),Customers.filled_date.desc()).all()
     print(query.statement)
-    customer_data = [{'code':customer.code, 'username':customer.username,'note':customer.note,'code_origin':customer.code_origin,'phone_number':customer.phone_number,'category':customer.category,'bo_code':customer.bo_code,'contact_note':customer.contact_note,'call_note':customer.call_note,'zalo_note':customer.zalo_note,'tele_note':customer.tele_note,'sms_note':customer.sms_note,'social_note':customer.social_note,'interaction_content':customer.interaction_content,'interaction_result':customer.interaction_result,'person_in_charge':customer.person_in_charge,'filled_date': customer.filled_date,'recent_changed_at':customer.recent_changed_at,'assistant':customer.assistant,'creator':customer.creator} for customer in customers]
+    customer_data = [{'code':customer.code, 'username':customer.username,'note':customer.note,'code_origin':customer.code_origin,'phone_number':customer.phone_number,'category':customer.category,'bo_code':customer.bo_code,'contact_note':customer.contact_note,'call_note':customer.call_note,'zalo_note':customer.zalo_note,'tele_note':customer.tele_note,'sms_note':customer.sms_note,'social_note':customer.social_note,'interaction_content':customer.interaction_content,'interaction_result':customer.interaction_result,'person_in_charge':customer.person_in_charge,'filled_date': customer.filled_date,'bo_root_date':customer.bo_root_date,'recent_changed_at':customer.recent_changed_at,'assistant':customer.assistant,'creator':customer.creator} for customer in customers]
     paginated_data = customer_data[start_index:end_index]
     paginated_data = customer_data[start_index:end_index]
     # data = [{"filled_date":customer.filled_date}    for customer in customers]
@@ -199,6 +199,17 @@ def get_auto_any_code(db,attr, **kwargs):
         index_ = 1
         code = prefix+today_str+'-'+str(index_)
     return code
+###############################################################
+# Create an endpoint to check if root_bo_date is null, if it's null then change value of it 
+@crm_bp.route('/update_root_bo_date')
+def update_root_bo_date():
+    customers = Customers.query.filter(Customers.bo_root_date == None).all()
+    for customer in customers:
+        customer.bo_root_date = customer.filled_date - timedelta(hours=6, minutes=10)
+    db.session.commit()
+    return jsonify({'message':'root_bo_date updated successfully'})
+    # data = [{'code':customer.code, 'filled_date':customer.filled_date, 'bo_root_date': customer.bo_root_date} for customer in customers]
+    # return {'data':data, 'length':len(data)}
 @crm_bp.route('/record', methods=['POST'])
 def add_record():
     if not request.form:
@@ -220,7 +231,7 @@ def add_record():
     interaction_content = data.get('interaction_content')
     interaction_result = data.get('interaction_result')
     filled_date = datetime.now(timezone(timedelta(hours=+8), 'Hel')).strftime("%Y-%m-%d %H:%M:%S")
-    bo_root_date = datetime.now(timezone(timedelta(hours=+2, minutes= +10), 'Hel')).strftime("%Y-%m-%d %H:%M:%S")
+    bo_root_date = datetime.now(timezone(timedelta(hours=+2, minutes= -10), 'Hel')).strftime("%Y-%m-%d %H:%M:%S")
     
     # assistant = ''
     creator = session['username']
@@ -254,6 +265,7 @@ def edit_record(code):
         return jsonify({'error': 'Record not found'}), 404
     current_record_data = {
         "filled_date": record.filled_date,
+        "bo_root_date": record.bo_root_date,
         # "recent_changed_at"
         "code": code, 
         "username":record.username,
@@ -276,6 +288,7 @@ def edit_record(code):
         "editor" :session["username"]
     }
     new_record_history = Customer_Record_History(filled_date = current_record_data["filled_date"],
+                                                bo_root_date = current_record_data["bo_root_date"],
                                                   created_at = datetime.now(timezone(timedelta(hours=+2), 'Hel')).strftime("%Y-%m-%d %H:%M:%S"), 
                                                   code= code, 
                                                   username=current_record_data["username"],
@@ -384,6 +397,7 @@ def get_record_history(code):
     current_record_data = [{
                             'code':code,
                             'filled_date': current_record.filled_date,
+                            'bo_root_date': current_record.bo_root_date,
                             'recent_changed_at': current_record.recent_changed_at,
                             'username': current_record.username,
                             'note': current_record.note,
@@ -406,6 +420,7 @@ def get_record_history(code):
     history_records = Customer_Record_History.query.filter(Customer_Record_History.code == code).order_by(Customer_Record_History.created_at.desc()).all()
     history_record_data = [{ 'code':code,
                             'filled_date': history_record.filled_date,
+                            'bo_root_date': history_record.bo_root_date,
                             'edited_at': history_record.created_at,
                             'username': history_record.username,
                             'note': history_record.note,
@@ -436,6 +451,7 @@ def get_record_history(code):
 def add_history():
     data = request.form
     filled_date = data.get('filled_date')
+    bo_rooot_date = data.get('bo_root_date')
     # created_at = data.get('created_at')
     code = data.get('code')
     username = data.get('username')
@@ -457,6 +473,7 @@ def add_history():
     editor = data.get('editor')
     creator = data.get('creator')
     new_history = Customer_Record_History(filled_date = filled_date,
+                                        bo_root_date = bo_rooot_date,
                                         created_at =  datetime.now(timezone(timedelta(hours=+2), 'Hel')).strftime("%Y-%m-%d %H:%M:%S"), 
                                         code= code, 
                                         username=username,

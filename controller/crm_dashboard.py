@@ -28,8 +28,8 @@ def key_metrics():
     query = Customers.query
     if start_date and end_date:
         query = query.filter(and_(
-            func.date(Customers.filled_date) >= datetime.strptime(start_date, '%Y-%m-%d'),
-            func.date(Customers.filled_date) <= datetime.strptime(end_date, '%Y-%m-%d')
+            func.date(Customers.bo_root_date) >= datetime.strptime(start_date, '%Y-%m-%d'),
+            func.date(Customers.bo_root_date) <= datetime.strptime(end_date, '%Y-%m-%d')
         ))
     customers = query.count()
     seo_customers = query.filter(Customers.category == 'SEO Data').count()
@@ -99,8 +99,8 @@ def get_depositor_result():
         func.count(Customers.interaction_result).label('count')
         ).filter(and_(
             Customers.interaction_result.in_(['Khách SEO Tự Nạp Tiền','Khách CRM Nạp Tiền']),
-            func.date(Customers.filled_date) >= start_date,
-            func.date(Customers.filled_date) <= end_date)).group_by(
+            func.date(Customers.bo_root_date) >= start_date,
+            func.date(Customers.bo_root_date) <= end_date)).group_by(
             Customers.interaction_result
         ).all()
     result_dict = [{'category': result.interaction_result,'count': result.count} for result in results]
@@ -122,11 +122,11 @@ def get_customer_per_member():
     pic = data.get('person_in_charge')
     query = Customers.query
     results1 = query.with_entities(
-        func.date(Customers.filled_date).label('date'),
-        func.count(func.date(Customers.filled_date)).label('customer_by_date'),
+        func.date(Customers.bo_root_date).label('date'),
+        func.count(func.date(Customers.bo_root_date)).label('customer_by_date'),
         Customers.person_in_charge,
     ).group_by(
-        func.date(Customers.filled_date),
+        func.date(Customers.bo_root_date),
         Customers.person_in_charge,
     )
     if pic: # and Customers.query.filter(Customers.person_in_charge == pic):
@@ -134,14 +134,14 @@ def get_customer_per_member():
             list_pic = [i for i in pic.split(',')] if pic else None
             if list_pic:
                 results  = results1.filter(and_(
-                    func.date(Customers.filled_date)>= start_date,
-                    func.date(Customers.filled_date) <= end_date,
+                    func.date(Customers.bo_root_date)>= start_date,
+                    func.date(Customers.bo_root_date) <= end_date,
                     Customers.person_in_charge.in_(list_pic)
                 )).all()
             else:
                 results  = results1.filter(and_(
-                    func.date(Customers.filled_date)>= start_date,
-                    func.date(Customers.filled_date)<= end_date
+                    func.date(Customers.bo_root_date)>= start_date,
+                    func.date(Customers.bo_root_date)<= end_date
                 )).all()
             data = [
                 {
@@ -164,8 +164,8 @@ def get_customer_per_member():
 
         if pic == 'all':
             results  = results1.filter(and_(
-                func.date(Customers.filled_date) >= start_date,
-                func.date(Customers.filled_date) <= end_date
+                func.date(Customers.bo_root_date) >= start_date,
+                func.date(Customers.bo_root_date) <= end_date
             )).all()
             data = [
                 {
@@ -187,8 +187,8 @@ def get_customer_per_member():
             return jsonify(grouped_data )
     else:
         results  = results1.filter(and_(
-            func.date(Customers.filled_date) >= start_date,
-            func.date(Customers.filled_date) <= end_date
+            func.date(Customers.bo_root_date) >= start_date,
+            func.date(Customers.bo_root_date) <= end_date
         )).all()
         data = [
             {
@@ -217,19 +217,19 @@ def get_customer_per_member():
 #     pic = data.get('person_in_charge')
 #     query = Customers.query
 #     results1 = query.with_entities(
-#         func.date(Customers.filled_date).label('date'),
-#         func.count(func.date(Customers.filled_date)).label('customer_by_date'),
+#         func.date(Customers.bo_root_date).label('date'),
+#         func.count(func.date(Customers.bo_root_date)).label('customer_by_date'),
 #         Customers.person_in_charge,
 #     ).group_by(
-#         func.date(Customers.filled_date),
+#         func.date(Customers.bo_root_date),
 #         Customers.person_in_charge,
 #     )
 #     if pic: # and Customers.query.filter(Customers.person_in_charge == pic):
 #         if pic != 'all':
 #             results  = results1.filter(and_(
 #                 Customers.person_in_charge == pic,
-#                 Customers.filled_date >= start_date,
-#                 Customers.filled_date <= end_date
+#                 Customers.bo_root_date >= start_date,
+#                 Customers.bo_root_date <= end_date
 #             )).all()
 #             data = [
 #                 {
@@ -251,8 +251,8 @@ def get_customer_per_member():
 #             return jsonify(grouped_data )
 #         if pic == 'all':
 #             results  = results1.filter(and_(
-#                 Customers.filled_date >= start_date,
-#                 Customers.filled_date <= end_date
+#                 Customers.bo_root_date >= start_date,
+#                 Customers.bo_root_date <= end_date
 #             )).all()
 #             data = [
 #                 {
@@ -274,8 +274,8 @@ def get_customer_per_member():
 #             return jsonify(grouped_data )
 #     else:
 #         results  = results1.filter(and_(
-#             Customers.filled_date >= start_date,
-#             Customers.filled_date <= end_date
+#             Customers.bo_root_date >= start_date,
+#             Customers.bo_root_date <= end_date
 #         )).all()
 #         data = [
 #             {
@@ -319,8 +319,8 @@ def get_depositor_each():
         Customers.person_in_charge,
     ).filter(and_(
         Customers.interaction_result.in_(['Khách SEO Tự Nạp Tiền','Khách CRM Nạp Tiền']),
-        func.date(Customers.filled_date) >= start_date,
-        func.date(Customers.filled_date) <= end_date
+        func.date(Customers.bo_root_date) >= start_date,
+        func.date(Customers.bo_root_date) <= end_date
                   )).group_by(
         Customers.person_in_charge).all()
     query_data = [
@@ -352,8 +352,8 @@ def active_customer_for_category():
         Customers.interaction_result,
         func.count(Customers.interaction_result).label('result_count')
     ).filter(and_(
-        func.date(Customers.filled_date) >= start_date,
-        func.date(Customers.filled_date) <= end_date
+        func.date(Customers.bo_root_date) >= start_date,
+        func.date(Customers.bo_root_date) <= end_date
                   )).group_by(
         'new_category',
         Customers.interaction_result
@@ -384,8 +384,8 @@ def get_customer_pic_result():
         func.count(Customers.code).label('result_count')
     ).filter(
         and_(
-            func.date(Customers.filled_date) <= end_date,
-            func.date(Customers.filled_date) >= start_date
+            func.date(Customers.bo_root_date) <= end_date,
+            func.date(Customers.bo_root_date) >= start_date
         )
     ).group_by(
         Customers.person_in_charge,
@@ -408,16 +408,16 @@ def get_customer_date():
     end_date = data.get('end_date',end_date_default)
     query = Customers.query
     results = query.with_entities(
-        func.date(Customers.filled_date).label('date'),
-        func.count(Customers.filled_date).label('customer')
+        func.date(Customers.bo_root_date).label('date'),
+        func.count(Customers.bo_root_date).label('customer')
 
     ).filter(
         and_(
-            func.date(Customers.filled_date) <= end_date,
-            func.date(Customers.filled_date) >=  start_date
+            func.date(Customers.bo_root_date) <= end_date,
+            func.date(Customers.bo_root_date) >=  start_date
         )
     ).group_by(
-        func.date(Customers.filled_date)
+        func.date(Customers.bo_root_date)
     ).all()
     query_data =[{'date': data.date.isoformat() , 'customer':data.customer } for data in results]
     return jsonify(query_data)
@@ -440,16 +440,16 @@ def get_pic_result():
     if list_pic:
         query =  query.filter(
             and_(
-                func.date(Customers.filled_date) <= end_date,
-                func.date(Customers.filled_date) >=  start_date,
+                func.date(Customers.bo_root_date) <= end_date,
+                func.date(Customers.bo_root_date) >=  start_date,
                 Customers.person_in_charge.in_(list_pic)
             )
         )
     else:
         query =  query.filter(
             and_(
-                func.date(Customers.filled_date) <= end_date,
-                func.date(Customers.filled_date) >=  start_date,
+                func.date(Customers.bo_root_date) <= end_date,
+                func.date(Customers.bo_root_date) >=  start_date,
             )
         )
     results = query.group_by(
@@ -476,11 +476,11 @@ def get_property_date_stats():
         func.count(Customers.__dict__[attr]).label('count')
     ).filter(
         and_(
-            func.date(Customers.filled_date) <= end_date,
-            func.date(Customers.filled_date) >= start_date,
+            func.date(Customers.bo_root_date) <= end_date,
+            func.date(Customers.bo_root_date) >= start_date,
         )
     ).group_by(
-            func.date(Customers.filled_date),
+            func.date(Customers.bo_root_date),
             Customers.__dict__[attr]
         ).all()
     data = [{'date': result.date, attr: result.property, 'count': result.count} for result in results]    
@@ -506,8 +506,8 @@ def get_category_date_stats():
             func.count(Customers.__dict__[attr1]).label('count')
         ).filter(
             and_(
-                func.date(Customers.filled_date) <= end_date,
-                func.date(Customers.filled_date) >= start_date,
+                func.date(Customers.bo_root_date) <= end_date,
+                func.date(Customers.bo_root_date) >= start_date,
                 Customers.person_in_charge.in_(list_pic)
             ))
     else:
@@ -518,13 +518,13 @@ def get_category_date_stats():
             func.count(Customers.__dict__[attr1]).label('count')
         ).filter(
             and_(
-                func.date(Customers.filled_date) <= end_date,
-                func.date(Customers.filled_date) >= start_date,
+                func.date(Customers.bo_root_date) <= end_date,
+                func.date(Customers.bo_root_date) >= start_date,
             ))
     if attr2 and attr2_sub:
         query = query.filter( Customers.__dict__[attr2] == attr2_sub)
     results =  query.group_by(
-            # func.date(Customers.filled_date),
+            # func.date(Customers.bo_root_date),
             Customers.__dict__[attr1],
             Customers.__dict__[attr2]
         ).all()
@@ -549,10 +549,10 @@ def get_daily_customer():
     start_date = data.get('start_date', first_day_this_month)
     end_date =  data.get('end_date', last_day_this_month)
     # cross_join_query = db.session.query(Category, DateTable).join(DateTable, isouter=True)
-    sub_query = db.session.query(func.date(Customers.filled_date).label('date')).filter(
+    sub_query = db.session.query(func.date(Customers.bo_root_date).label('date')).filter(
         and_(
-            func.date(Customers.filled_date) >= start_date,
-            func.date(Customers.filled_date) <= end_date
+            func.date(Customers.bo_root_date) >= start_date,
+            func.date(Customers.bo_root_date) <= end_date
         )
     ).distinct().subquery()
     # sub_query2 = db.session.query (func.count(Category.category).label('count')).subquery()
@@ -568,7 +568,7 @@ def get_daily_customer():
         ).outerjoin(
             Customers,
             and_(
-               func.date(Customers.filled_date) == sub_query.c.date,
+               func.date(Customers.bo_root_date) == sub_query.c.date,
                 Customers.category == Category.category 
             )
         ).group_by(
@@ -592,13 +592,13 @@ def get_monthly_depositor_crm_seo():
     # return jsonify(data)
     results =  db.session.query(
         Customers.interaction_result.label('result'),
-        func.date(Customers.filled_date).label('date'),
-        func.count(func.date(Customers.filled_date)).label('number_depositor')
+        func.date(Customers.bo_root_date).label('date'),
+        func.count(func.date(Customers.bo_root_date)).label('number_depositor')
     ).filter(
         Customers.interaction_result.in_(["Khách CRM Nạp Tiền", "Khách SEO Tự Nạp Tiền"])
     ).group_by(
         Customers.interaction_result.label('result'),
-        func.date(Customers.filled_date).label('date')
+        func.date(Customers.bo_root_date).label('date')
     ).all()
 # query_data1 = [{'result':result.result, 'date':result.date.strftime('%Y-%m-%d') if result.date else 'N/A','number_depositor': result.number_depositor } for result in results if result.result == 'Khách CRM Nạp Tiền']
     # query_data2 = [{'result':result.result, 'date':result.date.strftime('%Y-%m-%d') if result.date else 'N/A','number_depositor': result.number_depositor } for result in results if result.result == 'Khách SEO Tự Nạp Tiền']
@@ -641,28 +641,28 @@ def get_customer_by_username():
     current_year = data.get('year',str(datetime.now().year) )
     results = db.session.query(
         Customers.person_in_charge.label('pic'),
-        func.date(Customers.filled_date).label('date'),
-        func.count(func.date(Customers.filled_date)).label('count')
+        func.date(Customers.bo_root_date).label('date'),
+        func.count(func.date(Customers.bo_root_date)).label('count')
     ).filter(
         and_(
-            func.year(Customers.filled_date)== current_year,
+            func.year(Customers.bo_root_date)== current_year,
             Customers.person_in_charge == person_in_charge
         )
     ).group_by(
         Customers.person_in_charge,
-        func.date(Customers.filled_date)
-    ).order_by(Customers.filled_date).all()
+        func.date(Customers.bo_root_date)
+    ).order_by(Customers.bo_root_date).all()
     data = [{'date': result.date.strftime('%Y-%m-%d'),'count':result.count} for result in results]
     return jsonify(data)
 @crm_stats.route('/year_list')
 def get_year():
     person_in_charge = session['username']
     results = db.session.query(
-        func.year(Customers.filled_date).distinct().label('year')
+        func.year(Customers.bo_root_date).distinct().label('year')
     ).filter(
         Customers.person_in_charge == person_in_charge
     ).order_by(
-        func.year(Customers.filled_date).desc()
+        func.year(Customers.bo_root_date).desc()
     ).all()
     data = [result.year for result in results]
     return jsonify(data)
