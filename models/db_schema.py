@@ -4,14 +4,26 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Date,Time,DateTime , and_, func, case
 import datetime
 from datetime import datetime, timedelta
+from dotenv import load_dotenv
+import os
+
 app = Flask(__name__)
 app.secret_key = 'f33924fea4dd7123a0daa9d2a7213679'
 # Replace the following values with your database connection details
-db_username = 'crm_test' #'crm'#
-db_password = 'Lhzxc7PKwN7wEJXF'#'LSciYCtCK7tZXAxL'#
-db_host = '23.226.8.83'
-db_database = 'crm_test'#'crm' # 
-db_port = 3306
+load_dotenv()
+
+db_username = os.getenv('DB_USERNAME')
+db_password = os.getenv('DB_PASSWORD')
+db_host = os.getenv('DB_HOST')
+db_database = os.getenv('DB_DATABASE')
+db_port = os.getenv('DB_PORT')
+
+app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{db_username}:{db_password}@{db_host}:{db_port}/{db_database}'
+# db_username = 'crm_test' #'crm'#
+# db_password = 'Lhzxc7PKwN7wEJXF'#'LSciYCtCK7tZXAxL'#
+# db_host = '23.226.8.83'
+# db_database = 'crm_test'#'crm' # 
+# db_port = 3306
 app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{db_username}:{db_password}@{db_host}/{db_database}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # app.config['CORS_HEADERS'] = 'Content-Type'
