@@ -83,7 +83,7 @@ def login():
                 return jsonify({'message': 'Welcome, {},you are logging in as {}!'.format(session['username'],session['role']),'role': session['role'],'username':session['username'],'company_name': company_name})#session['username']
             else: 
                 return jsonify({'error': 'unauthenticated login'}), 401
-        if username == 'jackson168' and password == 'jackson168':
+        if username == 'admin168' and password == 'admin168':
             return jsonify({'message': 'Welcome, {}!'.format(username)})#session['username']
         else:
             return jsonify({'error': 'Invalid username or password'}), 401
