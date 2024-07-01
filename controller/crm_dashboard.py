@@ -32,8 +32,8 @@ def key_metrics():
             func.date(Customers.bo_root_date) <= datetime.strptime(end_date, '%Y-%m-%d')
         ))
     customers = query.count()
-    seo_customers = query.filter(Customers.category == 'SEO Data').count()
-    crm_customers  = query.filter(Customers.category != 'SEO Data').count()
+    seo_customers = query.filter(Customers.category == 'DATA SEO').count()
+    crm_customers  = query.filter(Customers.category != 'DATA SEO').count()
     seo_depositors = query.filter(Customers.interaction_result == ['Khách SEO Tự Nạp Tiền']).count()
     crm_depositors = query.filter(Customers.interaction_result == ['Khách CRM Nạp Tiền']).count()
     depositors = query.filter(Customers.interaction_result.in_(['Khách SEO Tự Nạp Tiền','Khách CRM Nạp Tiền'])).count()
@@ -471,7 +471,7 @@ def get_property_date_stats():
     attr = data.get('property')
     query  = Customers.query
     results = query.with_entities(
-        func.date(Customers.__dict__['filled_date']).label('date'),
+        func.date(Customers.__dict__['bo_root_date']).label('date'),
         Customers.__dict__[attr].label('property'),
         func.count(Customers.__dict__[attr]).label('count')
     ).filter(
@@ -616,7 +616,7 @@ def get_data():
     condition = data.get('category',None)
     if condition:
         condition_str = f'''where `db_vn168_crm_customer`.category = "{condition}"'''
-    sql = text(f'''select ss.date, ss.bo,COUNT(cuu.code) customer from (select DISTINCT date(cu.filled_date) date, b.bo_code bo FROM `db_vn168_crm_customer` cu CROSS join `db_vn168_crm_bo` b ) ss left join (select * from `db_vn168_crm_customer` {condition_str})cuu ON cuu.bo_code = ss.bo and date(cuu.filled_date) = ss.date GROUP by ss.date, ss.bo order by ss.date, ss.bo;''')
+    sql = text(f'''select ss.date, ss.bo,COUNT(cuu.code) customer from (select DISTINCT date(cu.bo_root_date) date, b.bo_code bo FROM `db_vn168_crm_customer` cu CROSS join `db_vn168_crm_bo` b ) ss left join (select * from `db_vn168_crm_customer` {condition_str})cuu ON cuu.bo_code = ss.bo and date(cuu.bo_root_date) = ss.date GROUP by ss.date, ss.bo order by ss.date, ss.bo;''')
     result = db.session.execute(sql)
     users = [{'date':row[0], 'bo_code': row[1], 'customer': row[2]} for row in result]
     return jsonify(users)
@@ -630,7 +630,7 @@ def get_dataa():
     condition = data.get('category',None)
     if condition:
         condition_str = f'''where `db_vn168_crm_customer`.category = "{condition}"'''
-    sql = text(f'''select ss.date, ss.bo,COUNT(cuu.code) customer from (select DISTINCT date(cu.filled_date) date, b.bo_code bo FROM `db_vn168_crm_customer` cu CROSS join `db_vn168_crm_bo` b ) ss left join (select * from `db_vn168_crm_customer` {condition_str})cuu ON cuu.bo_code = ss.bo and date(cuu.filled_date) = ss.date GROUP by ss.date, ss.bo order by ss.date, ss.bo;''')
+    sql = text(f'''select ss.date, ss.bo,COUNT(cuu.code) customer from (select DISTINCT date(cu.bo_root_date) date, b.bo_code bo FROM `db_vn168_crm_customer` cu CROSS join `db_vn168_crm_bo` b ) ss left join (select * from `db_vn168_crm_customer` {condition_str})cuu ON cuu.bo_code = ss.bo and date(cuu.bo_root_date) = ss.date GROUP by ss.date, ss.bo order by ss.date, ss.bo;''')
     result = db.session.execute(sql)
     users = [{'date':row[0], 'bo_code': row[1], 'customer': row[2]} for row in result]
     return jsonify(users)
